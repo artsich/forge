@@ -21,6 +21,8 @@ public abstract class GraphicsResourceBase : IDisposable
 		{
 			OnDestroy();
 			GC.SuppressFinalize(this);
+
+			IsDisposed = true;
 		}
 	}
 
