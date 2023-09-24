@@ -5,7 +5,7 @@ namespace Forge.Graphics.Buffers;
 
 public unsafe partial class Buffer
 {
-	public static class Vertex
+	public static class Index
 	{
 		public static Buffer<T> New<T>(GraphicsDevice gd, T[] initialValue, BufferUsageARB usage = BufferUsageARB.StaticDraw)
 			where T : unmanaged
@@ -27,7 +27,7 @@ public unsafe partial class Buffer
 		{
 			return new BufferDescription()
 			{
-				BufferTarget = BufferTargetARB.ArrayBuffer,
+				BufferTarget = BufferTargetARB.ElementArrayBuffer,
 				SizeInBytes = sizeInBytes,
 				StructureByteStride = elementSize,
 				Usage = usage,

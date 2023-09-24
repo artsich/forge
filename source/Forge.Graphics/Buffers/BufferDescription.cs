@@ -2,7 +2,7 @@
 
 namespace Forge.Graphics.Buffers;
 
-public struct BufferDescription : IEquatable<BufferDescription>
+internal struct BufferDescription : IEquatable<BufferDescription>
 {
     public BufferDescription(int sizeInBytes, BufferTargetARB bufferTarget, BufferUsageARB usage, int structureByteStride = 0)
     {
@@ -20,12 +20,12 @@ public struct BufferDescription : IEquatable<BufferDescription>
 
     public int StructureByteStride;
 
-    public bool Equals(BufferDescription other)
+	public readonly bool Equals(BufferDescription other)
     {
         return SizeInBytes == other.SizeInBytes && BufferTarget == other.BufferTarget && Usage == other.Usage && StructureByteStride == other.StructureByteStride;
     }
 
-    public override bool Equals(object? obj)
+	public override readonly bool Equals(object? obj)
     {
 		if (obj is null) return false;
 		return obj is BufferDescription description && Equals(description);

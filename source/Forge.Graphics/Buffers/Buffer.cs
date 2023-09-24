@@ -1,9 +1,5 @@
 ﻿using Silk.NET.OpenGL;
-using System.Data;
-using System;
-using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
-using Forge.Graphics.Buffers;
 
 namespace Forge.Graphics.Buffers;
 
@@ -17,7 +13,7 @@ public unsafe sealed class Buffer<T> : Buffer
 
 	public unsafe void SetData(T[] fromData, ResourceRegion region)
 	{
-		fixed (void* from = fromData)
+		fixed (void* from = &fromData[0])
 			base.SetData(new DataPointer(from, fromData.Length * Unsafe.SizeOf<T>()), region);
 	}
 }
@@ -54,7 +50,7 @@ public unsafe partial class Buffer : GraphicsResourceBase
 	{
 		GL.GenBuffers(1, out BufferId);
 		GL.BindBuffer(BufferTarget, BufferId);
-		GL.BufferData(BufferTarget, (UIntPtr)ElementSize, (void*)dataPointer, BufferUsageHint);
+		GL.BufferData(BufferTarget, (nuint)SizeInBytes, (void*)dataPointer, BufferUsageHint);
 		GL.BindBuffer(BufferTarget, 0);
 	}
 
