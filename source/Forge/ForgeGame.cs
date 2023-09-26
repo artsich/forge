@@ -30,13 +30,13 @@ public unsafe class ForgeGame : GameBase
         #version 330 core
         out vec4 FragColor;
 
-		uniform vec3 u_Color = vec3(1.0);
+		uniform float timeTotal;
 
         void main()
         {
             vec3 color1 = vec3(0.0, 0.0, 0.0);
-            vec3 color2 = clamp(u_Color, vec3(0.1, 0.1, 0.1), vec3(1.0, 1.0, 1.0));
-            
+			vec3 red = vec3(sin(timeTotal), 0.0, 0.0);
+            vec3 color2 = red;
             vec3 finalColor = mix(color1, color2, gl_FragCoord.y / 600.0);
             FragColor = vec4(finalColor, 1.0);
         }
@@ -44,21 +44,21 @@ public unsafe class ForgeGame : GameBase
 
 	private static readonly Vector3D<float>[] Vertices =
 	{
-	new (0.5f,  0.5f, 0.0f),
-	new ( 0.5f, -0.5f, 0.0f),
-	new (-0.5f, -0.5f, 0.0f),
-	new (-0.5f,  0.5f, 0.5f)
-};
+		new (0.5f,  0.5f, 0.0f),
+		new ( 0.5f, -0.5f, 0.0f),
+		new (-0.5f, -0.5f, 0.0f),
+		new (-0.5f,  0.5f, 0.5f)
+	};
 
 	private static readonly uint[] Indices =
 	{
-	0, 1, 3,
-	1, 2, 3
-};
+		0, 1, 3,
+		1, 2, 3
+	};
 
 	protected override void LoadGame()
 	{
-		Gl = GraphicsDevice.gl;
+		Gl = GraphicsDevice!.gl;
 
 		Vao = new Graphics.Buffers.VertexArray(GraphicsDevice);
 		Vao.Bind();
@@ -91,8 +91,7 @@ public unsafe class ForgeGame : GameBase
 
 	protected override void Update(GameTime time)
 	{
-		AddRenderTask(() =>
-			Shader["u_Color"]?.SetValue(new Vector3D<float>((float)Math.Sin(time.TotalTime), 0.0f, 0.0f)));
+		AddRenderTask(() => Shader.BindUniform(time));
 	}
 
 	protected override void OnClose()

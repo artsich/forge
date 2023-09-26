@@ -10,7 +10,7 @@ public abstract class GameBase
 {
 	private readonly IWindow _window;
 
-	protected GraphicsDevice GraphicsDevice;
+	protected GraphicsDevice? GraphicsDevice;
 
 	private readonly ConcurrentQueue<Action> _renderTasks = new();
 	private readonly ConcurrentQueue<Action> _gameLogicTasks = new();

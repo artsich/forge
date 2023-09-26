@@ -1,1 +1,3 @@
-﻿new ForgeGame().Run();
+﻿using Forge;
+
+new ForgeGame().Run();

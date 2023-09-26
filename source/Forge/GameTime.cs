@@ -1,5 +1,8 @@
-﻿namespace Forge;
+﻿using Forge.Graphics.Shaders;
 
+namespace Forge;
+
+[UniformPrefix("time")]
 public readonly struct GameTime
 {
 	internal GameTime(float totalTime, float deltaTime)
@@ -8,7 +11,9 @@ public readonly struct GameTime
 		DeltaTime = deltaTime;
 	}
 
+	[Uniform("Total")]
 	public readonly float TotalTime;
 
+	[Uniform("Delta")]
 	public readonly float DeltaTime;
 }

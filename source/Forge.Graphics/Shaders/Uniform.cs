@@ -27,17 +27,27 @@ public class Uniform
 		Size = size;
 	}
 
+	#region Setters
+
+	public void SetValue(float value)
+	{
+		ValidateType(UniformType.Float);
+		gl.ProgramUniform1(cs.ProgramId, Location, value);
+	}
+
 	public void SetValue(Vector3D<float> value)
 	{
 		ValidateType(UniformType.FloatVec3);
-		gl.ProgramUniform3(cs.ProgramId, this.Location, value.X, value.Y, value.Z);
+		gl.ProgramUniform3(cs.ProgramId, Location, value.X, value.Y, value.Z);
 	}
 
 	public void SetValue(Vector4D<float> value)
 	{
 		ValidateType(UniformType.FloatVec4);
-		gl.ProgramUniform4(cs.ProgramId, this.Location, value.X, value.Y, value.Z, value.W);
+		gl.ProgramUniform4(cs.ProgramId, Location, value.X, value.Y, value.Z, value.W);
 	}
+
+	#endregion
 
 	private void ValidateType(UniformType type)
 	{
