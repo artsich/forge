@@ -71,21 +71,22 @@ public abstract class GameBase
 	{
 		stopwatch.Start();
 
-		double lastTime = stopwatch.Elapsed.TotalSeconds;
+		double totalTime = stopwatch.Elapsed.TotalSeconds;
 
 		while (_running)
 		{
 			double currentTime = stopwatch.Elapsed.TotalSeconds;
-			double elapsedTime = currentTime - lastTime;
+			double elapsedTime = currentTime - totalTime;
 
 			while (_gameLogicTasks.TryDequeue(out var task))
 			{
 				task.Invoke();
 			}
 
-			Update(elapsedTime);
+			totalTime = currentTime;
 
-			lastTime = currentTime;
+			Update(new GameTime((float)totalTime, (float)elapsedTime));
+
 			double sleepTime = targetFrameTime - (stopwatch.Elapsed.TotalSeconds - currentTime);
 
 			if (sleepTime > 0)
@@ -117,5 +118,5 @@ public abstract class GameBase
 
 	protected abstract void Render(double delta);
 
-	protected abstract void Update(double elapsedTime);
+	protected abstract void Update(GameTime time);
 }

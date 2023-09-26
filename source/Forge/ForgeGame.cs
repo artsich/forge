@@ -1,19 +1,19 @@
-﻿using Forge;
-using Forge.Graphics;
+﻿using Forge.Graphics;
 using Forge.Graphics.Buffers;
 using Forge.Graphics.Shaders;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using Shader = Forge.Graphics.Shaders.Shader;
+
+namespace Forge;
 
 public unsafe class ForgeGame : GameBase
 {
 	private static GL Gl;
 	private static Buffer<Vector3D<float>> Vbo;
 	private static Buffer<uint> Ebo;
-	private static Forge.Graphics.Buffers.VertexArray Vao;
+	private static Graphics.Buffers.VertexArray Vao;
 	private static CompiledShader Shader;
 
 	private static readonly string VertexShaderSource = @"
@@ -34,8 +34,8 @@ public unsafe class ForgeGame : GameBase
 
         void main()
         {
-            vec3 color1 = vec3(0.0, 0.0, 0.0); //red
-            vec3 color2 = u_Color; //blue
+            vec3 color1 = vec3(0.0, 0.0, 0.0);
+            vec3 color2 = clamp(u_Color, vec3(0.1, 0.1, 0.1), vec3(1.0, 1.0, 1.0));
             
             vec3 finalColor = mix(color1, color2, gl_FragCoord.y / 600.0);
             FragColor = vec4(finalColor, 1.0);
@@ -44,29 +44,29 @@ public unsafe class ForgeGame : GameBase
 
 	private static readonly Vector3D<float>[] Vertices =
 	{
-		new (0.5f,  0.5f, 0.0f),
-		new ( 0.5f, -0.5f, 0.0f),
-		new (-0.5f, -0.5f, 0.0f),
-		new (-0.5f,  0.5f, 0.5f)
-	};
+	new (0.5f,  0.5f, 0.0f),
+	new ( 0.5f, -0.5f, 0.0f),
+	new (-0.5f, -0.5f, 0.0f),
+	new (-0.5f,  0.5f, 0.5f)
+};
 
 	private static readonly uint[] Indices =
 	{
-		0, 1, 3,
-		1, 2, 3
-	};
+	0, 1, 3,
+	1, 2, 3
+};
 
 	protected override void LoadGame()
 	{
 		Gl = GraphicsDevice.gl;
 
-		Vao = new Forge.Graphics.Buffers.VertexArray(GraphicsDevice);
+		Vao = new Graphics.Buffers.VertexArray(GraphicsDevice);
 		Vao.Bind();
 
-		Vbo = Forge.Graphics.Buffers.Buffer.Vertex.New(GraphicsDevice, Vertices);
+		Vbo = Graphics.Buffers.Buffer.Vertex.New(GraphicsDevice, Vertices);
 		Vbo.Bind();
 
-		Ebo = Forge.Graphics.Buffers.Buffer.Index.New(GraphicsDevice, Indices);
+		Ebo = Graphics.Buffers.Buffer.Index.New(GraphicsDevice, Indices);
 		Ebo.Bind();
 
 		Shader = new Shader(
@@ -89,14 +89,10 @@ public unsafe class ForgeGame : GameBase
 		Gl.DrawElements(PrimitiveType.Triangles, (uint)Indices.Length, DrawElementsType.UnsignedInt, null);
 	}
 
-	double globalTime;
-
-	protected override void Update(double elapsedTime)
+	protected override void Update(GameTime time)
 	{
-		globalTime += elapsedTime;
-
-		AddRenderTask(() => 
-			Shader["u_Color"]?.SetValue(new Vector3D<float>((float)Math.Sin(globalTime), 0.0f, 0.0f)));
+		AddRenderTask(() =>
+			Shader["u_Color"]?.SetValue(new Vector3D<float>((float)Math.Sin(time.TotalTime), 0.0f, 0.0f)));
 	}
 
 	protected override void OnClose()
