@@ -1,20 +1,26 @@
-﻿using System.Collections.Concurrent;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Forge.Graphics.Shaders;
 
 internal static class AutoUniform
 {
-	private readonly static ConcurrentDictionary<Type, Action<CompiledShader, object>> Cache = new();
+	private readonly static Dictionary<Type, Action<CompiledShader, object>> Cache = new();
 
 	internal static void Bind(object obj, CompiledShader shader)
 	{
 		var type = obj.GetType();
+
 		if (!Cache.TryGetValue(type, out var binder))
 		{
-			binder = ConfigureBinder(type, shader);
-			Cache[type] = binder;
+			lock (Cache)
+			{
+				if (!Cache.TryGetValue(type, out binder))
+				{
+					binder = ConfigureBinder(type, shader);
+					Cache[type] = binder;
+				}
+			}
 		}
 
 		binder(shader, obj);
@@ -33,7 +39,7 @@ internal static class AutoUniform
 		return type.GetCustomAttribute<UniformPrefixAttribute>()?.Prefix ?? string.Empty;
 	}
 
-	private static List<MemberInfo> GetMembersWithUniformAttributes(Type type) => 
+	private static List<MemberInfo> GetMembersWithUniformAttributes(Type type) =>
 		type.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
 			.Where(m => m.GetCustomAttribute<UniformAttribute>() != null)
 			.ToList();
