@@ -20,6 +20,11 @@ public class Shader
 			Type = type;
 		}
 
+		internal void Delete(GL gl)
+		{
+			gl.DeleteShader(Id);
+		}
+
 		internal void Compile(GL gl)
 		{
 			Id = gl.CreateShader(Type);
@@ -55,7 +60,7 @@ public class Shader
 		this.shaderParts = shaderParts;
 	}
 
-	public CompiledShader Compile()
+	public CompiledShader? Compile()
 	{
 		uint programId = gd.gl.CreateProgram();
 
@@ -64,8 +69,24 @@ public class Shader
 			shaderPart.Compile(gd.gl);
 			gd.gl.AttachShader(programId, shaderPart.Id);
 		}
+
 		gd.gl.LinkProgram(programId);
 
+		foreach (var shaderPart in shaderParts)
+		{
+			shaderPart.Delete(gd.gl);
+		}
+
+		if (!ValidateProgram(programId))
+		{
+			return null;
+		}
+
+		return new CompiledShader(programId, gd);
+	}
+
+	private bool ValidateProgram(uint programId)
+	{
 		gd.gl.GetProgram(programId, GLEnum.LinkStatus, out int result);
 		string infoLog = gd.gl.GetProgramInfoLog(programId);
 
@@ -74,18 +95,16 @@ public class Shader
 			Console.WriteLine("Shader program link failed");
 			if (!string.IsNullOrWhiteSpace(infoLog))
 				Console.WriteLine(infoLog);
+
 			gd.gl.DeleteProgram(programId);
 
-			return null;
+			return false;
 		}
-		else
+		if (!string.IsNullOrWhiteSpace(infoLog))
 		{
-			if (!string.IsNullOrWhiteSpace(infoLog))
-			{
-				Console.WriteLine($"Shader program link result: {infoLog}");
-			}
+			Console.WriteLine($"Shader program link result: {infoLog}");
 		}
 
-		return new CompiledShader(programId, gd);
+		return true;
 	}
 }

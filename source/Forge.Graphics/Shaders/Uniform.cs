@@ -1,18 +1,17 @@
-﻿using Silk.NET.Maths;
-using Silk.NET.OpenGL;
+﻿using Silk.NET.OpenGL;
 
 namespace Forge.Graphics.Shaders;
 
-public class Uniform
+public partial class Uniform
 {
 	private readonly CompiledShader cs;
 	private readonly GL gl;
 
-	public int Location { get; init; }
+	public int Location { get; }
 
-	public string Name { get; init; }
+	public string Name { get; }
 
-	public UniformType Type { get; init; }
+	public UniformType Type { get; }
 
 	public int Size { get; }
 
@@ -26,28 +25,6 @@ public class Uniform
 		Type = type;
 		Size = size;
 	}
-
-	#region Setters
-
-	public void SetValue(float value)
-	{
-		ValidateType(UniformType.Float);
-		gl.ProgramUniform1(cs.ProgramId, Location, value);
-	}
-
-	public void SetValue(Vector3D<float> value)
-	{
-		ValidateType(UniformType.FloatVec3);
-		gl.ProgramUniform3(cs.ProgramId, Location, value.X, value.Y, value.Z);
-	}
-
-	public void SetValue(Vector4D<float> value)
-	{
-		ValidateType(UniformType.FloatVec4);
-		gl.ProgramUniform4(cs.ProgramId, Location, value.X, value.Y, value.Z, value.W);
-	}
-
-	#endregion
 
 	private void ValidateType(UniformType type)
 	{

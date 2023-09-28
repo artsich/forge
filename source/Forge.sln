@@ -5,7 +5,7 @@ VisualStudioVersion = 17.5.33627.172
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Forge", "Forge\Forge.csproj", "{4CD94DFB-338B-44EE-A961-732D863381C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forge.Graphics", "Forge.Graphics\Forge.Graphics.csproj", "{381D259E-A4CB-4E17-A599-DCFBF5B06E3D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Forge.Graphics", "Forge.Graphics\Forge.Graphics.csproj", "{381D259E-A4CB-4E17-A599-DCFBF5B06E3D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

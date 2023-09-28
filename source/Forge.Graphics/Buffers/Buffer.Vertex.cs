@@ -7,6 +7,19 @@ public unsafe partial class Buffer
 {
 	public static class Vertex
 	{
+		public static Buffer New(GraphicsDevice gd, int bufferSize, int elementSize, BufferUsageARB usage = BufferUsageARB.StaticDraw)
+		{
+			// TODO: data pointer is wrong in this case
+			return New(gd, new DataPointer(IntPtr.Zero, bufferSize), elementSize, usage);
+		}
+
+		public static Buffer<T> New<T>(GraphicsDevice gd, int bufferSize, BufferUsageARB usage = BufferUsageARB.StaticDraw)
+			where T : unmanaged
+		{
+			int elementSize = Unsafe.SizeOf<T>();
+			return (Buffer<T>)new Buffer<T>(gd).Initialize(IntPtr.Zero, NewDescription(bufferSize, elementSize, usage));
+		}
+
 		public static Buffer<T> New<T>(GraphicsDevice gd, T[] initialValue, BufferUsageARB usage = BufferUsageARB.StaticDraw)
 			where T : unmanaged
 		{
