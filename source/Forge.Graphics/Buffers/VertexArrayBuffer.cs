@@ -11,7 +11,7 @@ public sealed class VertexArrayBuffer : GraphicsResourceBase
 	/// </summary>
 	public VertexArrayBuffer(GraphicsDevice gd) : base(gd)
 	{
-		id = GL.GenVertexArray();
+		id = GL.CreateVertexArray();
 	}
 
 	public void Bind()
