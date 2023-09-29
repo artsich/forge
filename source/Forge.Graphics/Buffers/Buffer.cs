@@ -6,15 +6,29 @@ namespace Forge.Graphics.Buffers;
 public unsafe sealed class Buffer<T> : Buffer
 	where T : unmanaged
 {
+	private static readonly int TSize = Unsafe.SizeOf<T>();
+
 	public Buffer(GraphicsDevice gd)
 		: base(gd)
 	{
 	}
 
+	public void SetData(T[] fromData)
+	{
+		SetData(fromData, new ResourceRegion(0, fromData.Length));
+	}
+
+	public void SetData(T[] fromData, int count)
+	{
+		fixed (void* from = &fromData[0])
+			base.SetData(new DataPointer(from, fromData.Length * TSize), new ResourceRegion(0, count * TSize));
+	}
+
+	// todo: Broken???
 	public unsafe void SetData(T[] fromData, ResourceRegion region)
 	{
 		fixed (void* from = &fromData[0])
-			base.SetData(new DataPointer(from, fromData.Length * Unsafe.SizeOf<T>()), region);
+			base.SetData(new DataPointer(from, fromData.Length * TSize), region);
 	}
 }
 
@@ -24,7 +38,7 @@ public unsafe partial class Buffer : GraphicsResourceBase
 	internal BufferUsageARB BufferUsageHint;
 	internal BufferTargetARB BufferTarget;
 	internal int SizeInBytes;
-
+	
 	public int ElementSize { get; private set; }
 	public int ElementCount { get; private set; }
 
@@ -65,11 +79,11 @@ public unsafe partial class Buffer : GraphicsResourceBase
 	{
 		if (region.Left == 0 && region.Right == SizeInBytes)
 		{
-			GL.BufferData(BufferTarget, (UIntPtr)region.Right, (void*)fromData.Pointer, BufferUsageHint);
+			GL.NamedBufferData(BufferId, (UIntPtr)region.Right, (void*)fromData.Pointer, (GLEnum)BufferUsageHint);
 		}
 		else
 		{
-			GL.BufferSubData(BufferTarget, region.Left, (UIntPtr)(region.Right - region.Left), (void*)fromData.Pointer);
+			GL.NamedBufferSubData(BufferId, region.Left, (UIntPtr)(region.Right - region.Left), (void*)fromData.Pointer);
 		}
 	}
 

@@ -13,11 +13,11 @@ public unsafe partial class Buffer
 			return New(gd, new DataPointer(IntPtr.Zero, bufferSize), elementSize, usage);
 		}
 
-		public static Buffer<T> New<T>(GraphicsDevice gd, int bufferSize, BufferUsageARB usage = BufferUsageARB.StaticDraw)
+		public static Buffer<T> New<T>(GraphicsDevice gd, int count, BufferUsageARB usage = BufferUsageARB.StaticDraw)
 			where T : unmanaged
 		{
 			int elementSize = Unsafe.SizeOf<T>();
-			return (Buffer<T>)new Buffer<T>(gd).Initialize(IntPtr.Zero, NewDescription(bufferSize, elementSize, usage));
+			return (Buffer<T>)new Buffer<T>(gd).Initialize(IntPtr.Zero, NewDescription(count * elementSize, elementSize, usage));
 		}
 
 		public static Buffer<T> New<T>(GraphicsDevice gd, T[] initialValue, BufferUsageARB usage = BufferUsageARB.StaticDraw)

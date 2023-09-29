@@ -2,14 +2,14 @@
 
 namespace Forge.Graphics.Buffers;
 
-public sealed class VertexArray : GraphicsResourceBase
+public sealed class VertexArrayBuffer : GraphicsResourceBase
 {
 	private uint id;
 
 	/// <summary>
 	/// Instantiates a new vertex array object.
 	/// </summary>
-	public VertexArray(GraphicsDevice gd) : base(gd)
+	public VertexArrayBuffer(GraphicsDevice gd) : base(gd)
 	{
 		id = GL.GenVertexArray();
 	}

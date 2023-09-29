@@ -5,6 +5,7 @@ using Silk.NET.OpenGL;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using Shader = Forge.Graphics.Shaders.Shader;
+using Buffer = Forge.Graphics.Buffers.Buffer;
 
 namespace Forge;
 
@@ -58,7 +59,7 @@ public unsafe class ForgeGame : GameBase
 	private static GL Gl;
 	private static Buffer<CircleVertexData> Vbo;
 	private static Buffer<uint> Ebo;
-	private static Graphics.Buffers.VertexArray Vao;
+	private static VertexArrayBuffer Vao;
 	private static CompiledShader Shader;
 
 	private static readonly string VertexShaderSource = @"
@@ -134,13 +135,13 @@ void main()
 	{
 		Gl = GraphicsDevice!.gl;
 
-		Vao = new Graphics.Buffers.VertexArray(GraphicsDevice);
+		Vao = new VertexArrayBuffer(GraphicsDevice);
 		Vao.Bind();
 
-		Vbo = Graphics.Buffers.Buffer.Vertex.New(GraphicsDevice, Vertices);
+		Vbo = Buffer.Vertex.New<CircleVertexData>(GraphicsDevice, Vertices);
 		Vbo.Bind();
 
-		Ebo = Graphics.Buffers.Buffer.Index.New(GraphicsDevice, Indices);
+		Ebo = Buffer.Index.New<uint>(GraphicsDevice, Indices);
 		Ebo.Bind();
 
 		Shader = new Shader(
@@ -167,7 +168,7 @@ void main()
 		AddRenderTask(() =>
 		{
 			Shader.BindUniforms(time, camera);
-			Shader["model"]!.SetValue(Matrix4X4.CreateScale(300f));
+			Shader["model"]!.SetValue(Matrix4X4.CreateScale(100f));
 		});
 	}
 

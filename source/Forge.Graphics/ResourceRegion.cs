@@ -5,12 +5,12 @@ namespace Forge.Graphics;
 [StructLayout(LayoutKind.Sequential, Pack = 0)]
 public readonly struct ResourceRegion
 {
-	public ResourceRegion(int left, int top) 
-		: this(left, top, 0, 0, 0, 0)
+	public ResourceRegion(int left, int right) 
+		: this(left, right, 0, 0, 0, 0)
 	{
 	}
 
-	public ResourceRegion(int left, int top, int front, int right, int bottom, int back)
+	public ResourceRegion(int left, int right, int top, int bottom, int back, int front)
 	{
 		Left = left;
 		Top = top;
@@ -21,9 +21,9 @@ public readonly struct ResourceRegion
 	}
 
 	public readonly int Left;
-	public readonly int Top;
-	public readonly int Front;
 	public readonly int Right;
+	public readonly int Top;
 	public readonly int Bottom;
+	public readonly int Front;
 	public readonly int Back;
 }
