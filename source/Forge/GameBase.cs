@@ -1,5 +1,6 @@
 ﻿using Forge.Graphics;
 using Silk.NET.Maths;
+using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -25,13 +26,25 @@ public abstract class GameBase
 	public GameBase()
 	{
 		var options = WindowOptions.Default;
+		options.API = new GraphicsAPI() 
+		{ 
+			API = ContextAPI.OpenGL,
+#if DEBUG
+			Flags = ContextFlags.Debug,
+#endif
+			Version = new APIVersion(4, 6) 
+		};
+		options.ShouldSwapAutomatically = true;
+
 		options.Size = new Vector2D<int>(1280, 720);
 		options.Title = "Forge";
 		options.VSync = false;
-		options.FramesPerSecond = framerate;
-		options.UpdatesPerSecond = framerate;
+
+		//options.FramesPerSecond = framerate;
+		//options.UpdatesPerSecond = framerate;
 
 		_window = Window.Create(options);
+
 		_window.Load += OnLoad;
 		_window.Render += OnRender;
 		_window.Closing += OnClose;
@@ -45,6 +58,9 @@ public abstract class GameBase
 	private void OnLoad()
 	{
 		GraphicsDevice = GraphicsDevice.InitOpengl(_window);
+
+		string version = GraphicsDevice.gl.GetStringS(StringName.Version);
+		Console.WriteLine($"OpenGL Version: {version}");
 
 		LoadGame();
 
