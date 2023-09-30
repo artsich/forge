@@ -21,9 +21,8 @@ public unsafe class ForgeGame : GameBase
 		layout (location = 2) in vec2 vTexCoord;
 		layout (location = 3) in float vFade;
 
-		uniform mat4 cameraProj;
-		uniform mat4 cameraView;
-		uniform mat4 model = mat4(1.0);
+		uniform mat4 cameraViewProj;
+		uniform mat4 model;
 
 		out vec2 fragTexCoord;
 		out float fragFade;
@@ -36,7 +35,7 @@ public unsafe class ForgeGame : GameBase
 			fragColor = vColor;
 
 			vec4 pos = model * vec4(vPos, 1.0);
-			gl_Position = cameraProj * cameraView * pos;
+			gl_Position = cameraViewProj * pos;
         }
         ";
 
@@ -49,7 +48,9 @@ in vec2 fragTexCoord;
 in float fragFade;
 in vec4 fragColor;
 
-uniform vec3 lightColor = vec3(1.0);
+uniform float timeTotal;
+
+vec3 lightColor = vec3(1.0, 0.0, 1.0);
 
 const float radius = 0.5;
 
@@ -65,7 +66,9 @@ void main()
 	vec2 uv = fragTexCoord;
 
 	float col = circle(uv, center, radius, fragFade);
-	FragColor = col * fragColor * vec4(lightColor, 1.0);
+
+	vec3 c = mix(fragColor.rgb, lightColor, sin(timeTotal));
+	FragColor = col * vec4(c, 1.0);
 }
 ";
 
@@ -104,7 +107,6 @@ void main()
 		for (int i = 0; i < circles.Length ; i++) 
 		{
 			ref var circle = ref circles[i];
-
 			renderer!.AddCircle(circle);
 		}
 
@@ -115,11 +117,8 @@ void main()
 	{
 		AddRenderTask(() =>
 		{
-			Shader["cameraProj"]!.SetValue(camera.Projection);
-			Shader["cameraView"]!.SetValue(camera.View);
-
-			// todo: without this line it does not work, what????
-			Shader["model"]!.SetValue(Matrix4X4.CreateScale(1f));
+			Shader.BindUniforms(time, camera);
+			Shader["model"]!.SetValue(Matrix4X4.CreateScale(2f));
 		});
 	}
 

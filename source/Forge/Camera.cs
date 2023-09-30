@@ -12,6 +12,9 @@ public class Camera
 	[Uniform("View")]
 	public Matrix4X4<float> View { get; set; }
 
+	[Uniform("ViewProj")]
+	public Matrix4X4<float> ViewProjection => View * Projection;
+
 	public Camera(Matrix4X4<float> projection) 
 		: this(projection, Matrix4X4<float>.Identity)
 	{
