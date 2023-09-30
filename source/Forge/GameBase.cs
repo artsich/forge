@@ -57,6 +57,7 @@ public abstract class GameBase
 
 	private void OnLoad()
 	{
+		Forge.Graphics.Graphics.ForceHardwareAcceleratedRendering();
 		GraphicsDevice = GraphicsDevice.InitOpengl(_window);
 
 		string version = GraphicsDevice.gl.GetStringS(StringName.Version);
