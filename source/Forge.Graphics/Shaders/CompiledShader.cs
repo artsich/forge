@@ -53,7 +53,10 @@ public class CompiledShader : GraphicsResourceBase
 		{
 			var name = GL.GetActiveUniform(ProgramId, (uint)i, out int size, out UniformType type);
 
-			var uniform = new Uniform(this, i, name, type, size);
+			// uniform index does not match with location!
+			var location = GL.GetUniformLocation(ProgramId, name);
+
+			var uniform = new Uniform(this, location, name, type, size);
 			uniformByLocation[i] = uniform;
 			uniformByName.Add(name, uniform);
 		}
