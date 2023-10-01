@@ -13,6 +13,12 @@ public unsafe sealed class Buffer<T> : Buffer
 	{
 	}
 
+	public void SetData(Span<T> fromData)
+	{
+		var size = fromData.Length * TSize;
+		base.SetData(new DataPointer(Unsafe.AsPointer(ref fromData[0]), size), new ResourceRegion(0, size));
+	}
+
 	public void SetData(T[] fromData)
 	{
 		SetData(fromData, new ResourceRegion(0, fromData.Length));

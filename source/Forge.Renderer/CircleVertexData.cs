@@ -2,7 +2,7 @@
 using Silk.NET.OpenGL;
 using System.Runtime.CompilerServices;
 
-namespace Forge;
+namespace Forge.Renderer;
 
 public readonly struct CircleVertexData
 {

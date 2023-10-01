@@ -2,9 +2,9 @@
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using System.Drawing;
-using Forge.Graphics.Buffers;
 using Shader = Forge.Graphics.Shaders.Shader;
-using Buffer = Forge.Graphics.Buffers.Buffer;
+using Forge.Renderer.Components;
+using Forge.Renderer;
 
 namespace Forge;
 
@@ -74,22 +74,22 @@ void main()
 
 	private readonly Camera camera = new(Matrix4X4.CreateOrthographic(1280, 720, 0.1f, 100.0f));
 
-	private BatchRenderer? renderer;
+	private SimpleRenderer? renderer;
 
 	private readonly CircleRenderComponent[] circles = new CircleRenderComponent[]
 	{
-		new CircleRenderComponent(new (1f, 0f, 0f, 0f), new (0f, 0f), 20, 0.05f),
-		new CircleRenderComponent(new (1f, 0f, 0f, 0f), new (-40f, 40f), 20, 0.05f),
-		new CircleRenderComponent(new (1f, 0f, 0f, 0f), new (-40f, -40f), 20, 0.05f),
-		new CircleRenderComponent(new (1f, 0f, 0f, 0f), new (40f, 40f), 20, 0.05f),
-		new CircleRenderComponent(new (1f, 0f, 0f, 0f), new (40f, -40f), 20, 0.05f),
+		new CircleRenderComponent(new (1f, 0f, 0f, 0f), new (0f, 0f), 10, 0.05f),
+		new CircleRenderComponent(new (1f, 0f, 0f, 0f), new (-40f, 40f), 10, 0.05f),
+		new CircleRenderComponent(new (1f, 0f, 0f, 0f), new (-40f, -40f), 10, 0.05f),
+		new CircleRenderComponent(new (1f, 0f, 0f, 0f), new (40f, 40f), 10, 0.05f),
+		new CircleRenderComponent(new (1f, 0f, 0f, 0f), new (40f, -40f), 10, 0.05f),
 	};
 
 	protected override void LoadGame()
 	{
 		Gl = GraphicsDevice!.gl;
 
-		renderer = new BatchRenderer(GraphicsDevice);
+		renderer = new SimpleRenderer(GraphicsDevice);
 
 		Shader = new Shader(
 			GraphicsDevice,
@@ -104,13 +104,15 @@ void main()
 
 		Shader.Bind();
 
+		var circleRenderer = renderer!.StartDrawCircles();
+
 		for (int i = 0; i < circles.Length ; i++) 
 		{
 			ref var circle = ref circles[i];
-			renderer!.AddCircle(circle);
+			circleRenderer!.Add(ref circle);
 		}
 
-		renderer!.EndBatch();
+		renderer!.FlushAll();
 	}
 
 	protected override void Update(GameTime time)
@@ -118,7 +120,7 @@ void main()
 		AddRenderTask(() =>
 		{
 			Shader.BindUniforms(time, camera);
-			Shader["model"]!.SetValue(Matrix4X4.CreateScale(2f));
+			Shader["model"]!.SetValue(Matrix4X4.CreateScale(1f));
 		});
 	}
 
