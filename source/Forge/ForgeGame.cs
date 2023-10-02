@@ -8,6 +8,50 @@ using Forge.Renderer;
 
 namespace Forge;
 
+public class CircleDrawer
+{
+	private const int CircleCount = 5000;
+
+	private readonly int screenWidth;
+	private readonly int screenHeight;
+
+	public CircleDrawer(int screenWidth, int screenHeight)
+	{
+		this.screenWidth = screenWidth;
+		this.screenHeight = screenHeight;
+	}
+
+	public void DrawCircles(SimpleRenderer renderer)
+	{
+		int circlesInXDirection = (int)Math.Sqrt(CircleCount * screenWidth / (float)screenHeight);
+		int circlesInYDirection = CircleCount / circlesInXDirection;
+
+		Vector4D<float> color = new(1.0f, 0.5f, 0.5f, 1.0f);
+		float fade = 0.04f;
+		float radius = 10.0f;
+
+		var batch = renderer.StartDrawCircles();
+
+		float deltaX = radius * 2;
+		float deltaY = radius * 2;
+
+		int startX = -screenWidth/2;
+		int startY = -screenHeight/2;
+
+		for (int i = 0; i < circlesInXDirection; i++)
+		{
+			for (int j = 0; j < circlesInYDirection; j++)
+			{
+				Vector2D<float> position = new(startX + i * deltaX, startY + j * deltaY);
+				var circle = new CircleRenderComponent(color, position, radius, fade);
+				batch.Add(ref circle);
+			}
+		}
+
+		renderer.FlushAll();
+	}
+}
+
 public unsafe class ForgeGame : GameBase
 {
 	private static GL Gl;
@@ -76,14 +120,7 @@ void main()
 
 	private SimpleRenderer? renderer;
 
-	private readonly CircleRenderComponent[] circles = new CircleRenderComponent[]
-	{
-		new CircleRenderComponent(new (1f, 0f, 0f, 0f), new (0f, 0f), 10, 0.05f),
-		new CircleRenderComponent(new (1f, 0f, 0f, 0f), new (-40f, 40f), 10, 0.05f),
-		new CircleRenderComponent(new (1f, 0f, 0f, 0f), new (-40f, -40f), 10, 0.05f),
-		new CircleRenderComponent(new (1f, 0f, 0f, 0f), new (40f, 40f), 10, 0.05f),
-		new CircleRenderComponent(new (1f, 0f, 0f, 0f), new (40f, -40f), 10, 0.05f),
-	};
+	private readonly CircleDrawer circleDrawer = new(1920, 1080);
 
 	protected override void LoadGame()
 	{
@@ -104,16 +141,12 @@ void main()
 
 		Shader.Bind();
 
-		var circleRenderer = renderer!.StartDrawCircles();
-
-		for (int i = 0; i < circles.Length ; i++) 
-		{
-			ref var circle = ref circles[i];
-			circleRenderer!.Add(ref circle);
-		}
-
-		renderer!.FlushAll();
+		circleDrawer.DrawCircles(renderer!);
 	}
+
+	private Vector3D<float> cameraPosition = new(0.0f, 0.0f, 0f);
+	private Vector3D<float> cameraMoveDir = Vector3D.Normalize(new Vector3D<float>(1f, 1.0f, 0f));
+	private float camSpeed = 100f;
 
 	protected override void Update(GameTime time)
 	{
@@ -122,6 +155,10 @@ void main()
 			Shader.BindUniforms(time, camera);
 			Shader["model"]!.SetValue(Matrix4X4.CreateScale(1f));
 		});
+
+		var newPos = cameraPosition + cameraMoveDir * MathF.Cos(time.TotalTime);
+		cameraPosition = Vector3D.Lerp(cameraPosition, newPos, camSpeed * time.DeltaTime);
+		camera.View = Matrix4X4.CreateTranslation(cameraPosition);
 	}
 
 	protected override void OnClose()

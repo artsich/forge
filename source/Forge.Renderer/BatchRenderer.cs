@@ -16,7 +16,7 @@ internal static class BatchConstants
 public class BatchQuadRenderer<TVertex, TRenderComponent> : IDisposable
 	where TVertex : unmanaged
 {
-	private const int MaxQuadsPerBatch = 1000;
+	private const int MaxQuadsPerBatch = 5000;
 	private const int MaxVerticesPerBatch = BatchConstants.VerticesPerQuad * MaxQuadsPerBatch;
 	private const int MaxIndicesPerBatch = BatchConstants.IndicesPerQuad * MaxQuadsPerBatch;
 
