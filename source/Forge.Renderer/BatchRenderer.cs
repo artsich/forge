@@ -73,6 +73,7 @@ public class BatchQuadRenderer<TVertex, TRenderComponent> : IDisposable
 		{
 			uint indicesUsed = (uint)vertices.Length / BatchConstants.VerticesPerQuad * BatchConstants.IndicesPerQuad;
 
+			Vbo!.Bind();
 			Vbo!.SetData(vertices);
 			Vao!.Bind();
 			gd.gl.DrawElements(PrimitiveType.Triangles, indicesUsed, DrawElementsType.UnsignedInt, null);

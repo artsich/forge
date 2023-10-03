@@ -28,13 +28,13 @@ public abstract class GameBase
 		var options = WindowOptions.Default;
 		options.API = new GraphicsAPI() 
 		{ 
+			Profile  = ContextProfile.Core,
 			API = ContextAPI.OpenGL,
 #if DEBUG
 			Flags = ContextFlags.Debug,
 #endif
-			Version = new APIVersion(4, 6) 
+			Version = new APIVersion(4, 1) 
 		};
-		options.ShouldSwapAutomatically = true;
 
 		options.Size = new Vector2D<int>(1280, 720);
 		options.Title = "Forge";

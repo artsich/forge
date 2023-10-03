@@ -85,11 +85,11 @@ public unsafe partial class Buffer : GraphicsResourceBase
 	{
 		if (region.Left == 0 && region.Right == SizeInBytes)
 		{
-			GL.NamedBufferData(BufferId, (UIntPtr)region.Right, (void*)fromData.Pointer, (GLEnum)BufferUsageHint);
+			GL.BufferData(BufferTarget, (UIntPtr)region.Right, (void*)fromData.Pointer, (GLEnum)BufferUsageHint);
 		}
 		else
 		{
-			GL.NamedBufferSubData(BufferId, region.Left, (UIntPtr)(region.Right - region.Left), (void*)fromData.Pointer);
+			GL.BufferSubData(BufferTarget, region.Left, (UIntPtr)(region.Right - region.Left), (void*)fromData.Pointer);
 		}
 	}
 
