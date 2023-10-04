@@ -1,6 +1,8 @@
 ﻿using Forge.Graphics.Shaders;
 using Silk.NET.Input;
 using Silk.NET.Maths;
+using System;
+using System.Numerics;
 
 namespace Forge;
 
@@ -67,30 +69,78 @@ public class CameraMoveDir : IMoveDir
 	}
 }
 
+public enum CameraControllerState
+{
+	Idle,
+	Moving,
+}
+
 public class Camera2DController
 {
 	private readonly IMoveDir moveDir;
+	private readonly IMouse mouse;
 
 	public CameraData CameraData { get; private set; }
 
-	public Vector2D<float> Position { get; set; }
-
 	public float Speed { get; init; } = 1.0f;
 
-    public Camera2DController(CameraData cameraData, IMoveDir moveDir)
+	private CameraControllerState state;
+
+	private Vector2D<float> startMovePosition;
+
+	public Camera2DController(CameraData cameraData, IMoveDir moveDir, IMouse mouse)
     {
 		CameraData = cameraData;
 		this.moveDir = moveDir;
+		this.mouse = mouse;
+
+		this.mouse.MouseDown += OnMouseBtnDown;
+		this.mouse.MouseUp += OnMouseBtnUp;
+		this.mouse.MouseMove += OnMouseMove;
+	}
+
+	private void OnMouseMove(IMouse mouse, Vector2 vector)
+	{
+		if (state == CameraControllerState.Moving)
+		{
+			var curMousePosition = new Vector2D<float>(mouse.Position.X, mouse.Position.Y);
+			if (curMousePosition == startMovePosition)
+			{
+				return;
+			}
+
+			var dir = Vector2D.Normalize(curMousePosition - startMovePosition) * new Vector2D<float>(1, -1);
+			var shift = dir * Speed * ForgeGame.Time.DeltaTime;
+			startMovePosition = curMousePosition;
+
+			ApplyTranslation(shift);
+		}
+	}
+
+	private void OnMouseBtnUp(IMouse mouse, MouseButton button)
+	{
+		if (button == MouseButton.Middle)
+		{
+			state = CameraControllerState.Idle;
+		}
+	}
+
+	private void OnMouseBtnDown(IMouse mouse, MouseButton button)
+	{
+		if (button == MouseButton.Middle)
+		{
+			state = CameraControllerState.Moving;
+			startMovePosition = new (mouse.Position.X, mouse.Position.Y);
+		}
 	}
 
 	public void Update(GameTime gameTime)
 	{
-		Position += moveDir.GetDir() * gameTime.DeltaTime * Speed;
-		ApplyTranslation(Position);
 	}
 
 	private void ApplyTranslation(Vector2D<float> translation)
 	{
-		CameraData.View = Matrix4X4.CreateTranslation(translation.X, translation.Y, 0);
+		var translationMatrix = Matrix4X4.CreateTranslation(translation.X, translation.Y, 0);
+		CameraData.View *= translationMatrix;
 	}
 }

@@ -24,6 +24,7 @@ public abstract class GameBase
 	private readonly double targetFrameTime = 1.0 / framerate;
 
 	protected IKeyboard? PrimaryKeyboard;
+	protected IMouse? PrimaryMouse;
 
 	public GameBase()
 	{
@@ -60,11 +61,8 @@ public abstract class GameBase
 	private void OnLoad()
 	{
 		IInputContext input = _window.CreateInput();
-		PrimaryKeyboard = input.Keyboards.FirstOrDefault();
-		if (PrimaryKeyboard != null)
-		{
-//			PrimaryKeyboard.KeyDown += KeyDown;
-		}
+		PrimaryKeyboard = input.Keyboards.First();
+		PrimaryMouse = input.Mice.First();
 
 		Forge.Graphics.Graphics.ForceHardwareAcceleratedRendering();
 		GraphicsDevice = GraphicsDevice.InitOpengl(_window);

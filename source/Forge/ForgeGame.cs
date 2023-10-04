@@ -124,10 +124,12 @@ void main()
 
 	private readonly CircleDrawer circleDrawer = new(1920, 1080);
 
+	public static GameTime Time { get; private set; }
+
 	protected override void LoadGame()
 	{
 		Gl = GraphicsDevice!.gl;
-		camera2D = new Camera2DController(camera, new CameraMoveDir(PrimaryKeyboard!))
+		camera2D = new Camera2DController(camera, new CameraMoveDir(PrimaryKeyboard!), PrimaryMouse!)
 		{
 			Speed = 100f
 		};
@@ -157,6 +159,7 @@ void main()
 			Shader.BindUniforms(time, camera2D.CameraData);
 		});
 
+		Time = time;
 		camera2D.Update(time);
 	}
 
