@@ -1,8 +1,8 @@
 ﻿using Forge.Graphics.Shaders;
 using Silk.NET.Input;
 using Silk.NET.Maths;
-using System;
 using System.Numerics;
+using System.Transactions;
 
 namespace Forge;
 
@@ -30,78 +30,32 @@ public class CameraData
 	}
 }
 
-public interface IMoveDir
-{
-	Vector2D<float> GetDir();
-}
-
-public class CameraMoveDir : IMoveDir
-{
-	private readonly IKeyboard keyboard;
-
-	public CameraMoveDir(IKeyboard keyboard)
-    {
-		this.keyboard = keyboard;
-	}
-
-    public Vector2D<float> GetDir()
-	{
-		Vector2D<float> dir = Vector2D<float>.Zero;
-		if (keyboard.IsKeyPressed(Key.W))
-		{
-			dir.Y = -1;
-		}
-		else if (keyboard.IsKeyPressed(Key.S))
-		{
-			dir.Y = 1;
-		}
-
-		if (keyboard.IsKeyPressed(Key.A))
-		{
-			dir.X = -1;
-		}
-		else if (keyboard.IsKeyPressed(Key.D))
-		{
-			dir.X = 1;
-		}
-
-		return dir;
-	}
-}
-
-public enum CameraControllerState
-{
-	Idle,
-	Moving,
-}
-
 public class Camera2DController
 {
-	private readonly IMoveDir moveDir;
 	private readonly IMouse mouse;
+
+	private Vector2D<float> startMovePosition;
 
 	public CameraData CameraData { get; private set; }
 
 	public float Speed { get; init; } = 1.0f;
 
-	private CameraControllerState state;
-
-	private Vector2D<float> startMovePosition;
-
-	public Camera2DController(CameraData cameraData, IMoveDir moveDir, IMouse mouse)
+	public Camera2DController(CameraData cameraData, IMouse mouse)
     {
 		CameraData = cameraData;
-		this.moveDir = moveDir;
 		this.mouse = mouse;
 
 		this.mouse.MouseDown += OnMouseBtnDown;
-		this.mouse.MouseUp += OnMouseBtnUp;
 		this.mouse.MouseMove += OnMouseMove;
+	}
+
+	public void Update(GameTime gameTime)
+	{
 	}
 
 	private void OnMouseMove(IMouse mouse, Vector2 vector)
 	{
-		if (state == CameraControllerState.Moving)
+		if (mouse.IsButtonPressed(MouseButton.Middle))
 		{
 			var curMousePosition = new Vector2D<float>(mouse.Position.X, mouse.Position.Y);
 			if (curMousePosition == startMovePosition)
@@ -110,18 +64,8 @@ public class Camera2DController
 			}
 
 			var dir = Vector2D.Normalize(curMousePosition - startMovePosition) * new Vector2D<float>(1, -1);
-			var shift = dir * Speed * ForgeGame.Time.DeltaTime;
+			ApplyTranslation(dir * Speed * ForgeGame.Time.DeltaTime);
 			startMovePosition = curMousePosition;
-
-			ApplyTranslation(shift);
-		}
-	}
-
-	private void OnMouseBtnUp(IMouse mouse, MouseButton button)
-	{
-		if (button == MouseButton.Middle)
-		{
-			state = CameraControllerState.Idle;
 		}
 	}
 
@@ -129,13 +73,8 @@ public class Camera2DController
 	{
 		if (button == MouseButton.Middle)
 		{
-			state = CameraControllerState.Moving;
 			startMovePosition = new (mouse.Position.X, mouse.Position.Y);
 		}
-	}
-
-	public void Update(GameTime gameTime)
-	{
 	}
 
 	private void ApplyTranslation(Vector2D<float> translation)

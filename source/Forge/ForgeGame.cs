@@ -129,7 +129,7 @@ void main()
 	protected override void LoadGame()
 	{
 		Gl = GraphicsDevice!.gl;
-		camera2D = new Camera2DController(camera, new CameraMoveDir(PrimaryKeyboard!), PrimaryMouse!)
+		camera2D = new Camera2DController(camera, PrimaryMouse!)
 		{
 			Speed = 100f
 		};
