@@ -66,7 +66,7 @@ public unsafe class ForgeGame : GameBase
 		layout (location = 3) in float vFade;
 
 		uniform mat4 cameraViewProj;
-		uniform mat4 model;
+		uniform mat4 model = mat4(1.0);
 
 		out vec2 fragTexCoord;
 		out float fragFade;
@@ -116,15 +116,21 @@ void main()
 }
 ";
 
-	private readonly Camera camera = new(Matrix4X4.CreateOrthographic(1280, 720, 0.1f, 100.0f));
+	private readonly CameraData camera = new(Matrix4X4.CreateOrthographic(1280, 720, 0.1f, 100.0f));
 
 	private SimpleRenderer? renderer;
+
+	private Camera2DController camera2D;
 
 	private readonly CircleDrawer circleDrawer = new(1920, 1080);
 
 	protected override void LoadGame()
 	{
 		Gl = GraphicsDevice!.gl;
+		camera2D = new Camera2DController(camera, new CameraMoveDir(PrimaryKeyboard!))
+		{
+			Speed = 100f
+		};
 
 		renderer = new SimpleRenderer(GraphicsDevice);
 
@@ -144,21 +150,14 @@ void main()
 		circleDrawer.DrawCircles(renderer!);
 	}
 
-	private Vector3D<float> cameraPosition = new(0.0f, 0.0f, 0f);
-	private Vector3D<float> cameraMoveDir = Vector3D.Normalize(new Vector3D<float>(1f, 1.0f, 0f));
-	private float camSpeed = 100f;
-
 	protected override void Update(GameTime time)
 	{
 		AddRenderTask(() =>
 		{
-			Shader.BindUniforms(time, camera);
-			Shader["model"]!.SetValue(Matrix4X4.CreateScale(1f));
+			Shader.BindUniforms(time, camera2D.CameraData);
 		});
 
-		var newPos = cameraPosition + cameraMoveDir * MathF.Cos(time.TotalTime);
-		cameraPosition = Vector3D.Lerp(cameraPosition, newPos, camSpeed * time.DeltaTime);
-		camera.View = Matrix4X4.CreateTranslation(cameraPosition);
+		camera2D.Update(time);
 	}
 
 	protected override void OnClose()

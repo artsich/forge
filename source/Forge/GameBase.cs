@@ -1,4 +1,5 @@
 ﻿using Forge.Graphics;
+using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
@@ -17,11 +18,12 @@ public abstract class GameBase
 	private readonly ConcurrentQueue<Action> _gameLogicTasks = new();
 	private Task _gameLogicTask = Task.CompletedTask;
 	private bool _running = true;
-
 	private readonly Stopwatch stopwatch = new();
 
 	private const double framerate = 144.0;
 	private readonly double targetFrameTime = 1.0 / framerate;
+
+	protected IKeyboard? PrimaryKeyboard;
 
 	public GameBase()
 	{
@@ -57,6 +59,13 @@ public abstract class GameBase
 
 	private void OnLoad()
 	{
+		IInputContext input = _window.CreateInput();
+		PrimaryKeyboard = input.Keyboards.FirstOrDefault();
+		if (PrimaryKeyboard != null)
+		{
+//			PrimaryKeyboard.KeyDown += KeyDown;
+		}
+
 		Forge.Graphics.Graphics.ForceHardwareAcceleratedRendering();
 		GraphicsDevice = GraphicsDevice.InitOpengl(_window);
 
