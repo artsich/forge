@@ -5,163 +5,9 @@ using System.Drawing;
 using Shader = Forge.Graphics.Shaders.Shader;
 using Forge.Renderer.Components;
 using Forge.Renderer;
+using Forge.Physics;
 
 namespace Forge;
-
-public class VervletCircleObject
-{
-	public Vector2D<float> PositionCurrent;
-	public Vector2D<float> PositionOld;
-	public Vector2D<float> Acceleration;
-
-	public float Radius;
-
-	public bool IsStatic = false;
-
-	public VervletCircleObject(Vector2D<float> positionCurrent, float radius)
-	{
-		PositionCurrent = positionCurrent;
-		PositionOld = positionCurrent;
-		Radius = radius;
-	}
-
-	public void UpdatePosition(float dt)
-	{
-		if (!IsStatic)
-		{
-			Vector2D<float> velocity = PositionCurrent - PositionOld;
-			PositionOld = PositionCurrent;
-			PositionCurrent += velocity + Acceleration * dt * dt;
-
-			Acceleration = Vector2D<float>.Zero;
-		}
-	}
-
-	public void ApplyForce(Vector2D<float> force)
-	{
-		Acceleration += force;
-	}
-}
-
-
-public class Link
-{
-	public VervletCircleObject Object1;
-	public VervletCircleObject Object2;
-
-	public float TargetDistance;
-
-	public void Apply()
-	{
-		var collisionAxis = Object1.PositionCurrent - Object2.PositionCurrent;
-		var distance = collisionAxis.Length;
-
-		var n = collisionAxis / distance;
-		float delta = TargetDistance - distance;
-
-		Object1.PositionCurrent += n * delta * 0.5f;
-		Object2.PositionCurrent -= n * delta * 0.5f;
-	}
-}
-
-public class Solver
-{
-	private readonly IList<VervletCircleObject> objects;
-	private readonly IList<Link> links;
-	Vector2D<float> gravity = new(0.0f, -1000f);
-
-	public Solver(IList<VervletCircleObject> objects, IList<Link> links)
-	{
-		this.objects = objects;
-		this.links = links;
-	}
-
-	public void Update(float dt)
-	{
-		var steps = 8;
-		var dtStep = dt / steps;
-
-		for(int i = 0; i < steps; i++)
-		{
-			ApplyGravity();
-			ApplyConstraints();
-			SolveCollisions();
-			UpdatePositions(dtStep);
-		}
-	}
-
-	private void UpdatePositions(float dt)
-	{
-		foreach (VervletCircleObject obj in objects)
-		{
-			obj.UpdatePosition(dt);
-		}
-	}
-
-	private void ApplyGravity()
-	{
-		foreach(var obj in objects)
-		{
-			obj.ApplyForce(gravity);
-		}
-	}
-
-	private void ApplyConstraints()
-	{
-		var pos = Vector2D<float>.Zero;
-		var radius = 500;
-		var myradius = 10f;
-
-		foreach(var obj in objects)
-		{
-			var to_obj = obj.PositionCurrent - pos;
-			var distance = to_obj.Length;
-
-			var r_sum = myradius + radius;
-			if (r_sum < distance)
-			{
-				var n = to_obj / distance;
-
-				obj.PositionCurrent += n * (r_sum - distance);
-			}
-		}
-
-		foreach (var link in links)
-		{
-			link.Apply();
-		}
-	}
-
-	private void SolveCollisions()
-	{
-		for (int i = 0; i < objects.Count; i++)
-		{
-			var object_1 = objects[i];
-			for (int j = i+1; j < objects.Count; j++)
-			{
-				var object_2 = objects[j];
-
-				TryResolve(object_1, object_2);
-			}
-		}
-	}
-
-	private static void TryResolve(VervletCircleObject object_1, VervletCircleObject object_2)
-	{
-		var collisionAxis = object_1.PositionCurrent - object_2.PositionCurrent;
-		var distance = collisionAxis.Length;
-		var r_sum = object_1.Radius + object_2.Radius;
-
-		if (distance < r_sum)
-		{
-			var n = collisionAxis / distance;
-			float delta = r_sum - distance;
-
-			object_1.PositionCurrent += n * delta * 0.5f;
-			object_2.PositionCurrent -= n * delta * 0.5f;
-		}
-	}
-}
 
 public class CircleDrawer
 {
@@ -281,17 +127,16 @@ void main()
 
 	public static GameTime Time { get; private set; }
 
-	Solver solver;
-	List<VervletCircleObject> vervletObjects;
-	List<Link> vervletLinks;
+	private VervletSolver solver;
+	private List<VervletCircleObject> vervletObjects;
+	private List<Link> vervletLinks;
 
-	Random r = new Random();
-
-	object locker = new object();
+	private readonly Random r = new();
+	private readonly object locker = new();
 
 	protected override void LoadGame()
 	{
-		PrimaryKeyboard.KeyDown += (_, key, _) =>
+		PrimaryKeyboard!.KeyDown += (_, key, _) =>
 		{
 			if (key == Silk.NET.Input.Key.Space)
 			{
@@ -340,63 +185,18 @@ void main()
 
 		vervletLinks = new List<Link>()
 		{
-			new Link()
-			{
-				Object1 = vervletObjects[0],
-				Object2 = vervletObjects[1],
-				TargetDistance = 25,
-			},
-			new Link()
-			{
-				Object1 = vervletObjects[1],
-				Object2 = vervletObjects[2],
-				TargetDistance = 25,
-			},
-			new Link()
-			{
-				Object1 = vervletObjects[2],
-				Object2 = vervletObjects[3],
-				TargetDistance = 25,
-			},
-			new Link()
-			{
-				Object1 = vervletObjects[3],
-				Object2 = vervletObjects[4],
-				TargetDistance = 25,
-			},
-			new Link()
-			{
-				Object1 = vervletObjects[4],
-				Object2 = vervletObjects[5],
-				TargetDistance = 25,
-			},
-			new Link()
-			{
-				Object1 = vervletObjects[5],
-				Object2 = vervletObjects[6],
-				TargetDistance = 25,
-			},
-			new Link()
-			{
-				Object1 = vervletObjects[6],
-				Object2 = vervletObjects[7],
-				TargetDistance = 25,
-			},
-			new Link()
-			{
-				Object1 = vervletObjects[7],
-				Object2 = vervletObjects[8],
-				TargetDistance = 25,
-			},
-			new Link()
-			{
-				Object1 = vervletObjects[8],
-				Object2 = vervletObjects[9],
-				TargetDistance = 25,
-			},
+			new Link(vervletObjects[0], vervletObjects[1], 25f),
+			new Link(vervletObjects[1], vervletObjects[2], 25f),
+			new Link(vervletObjects[2], vervletObjects[3], 25f),
+			new Link(vervletObjects[3], vervletObjects[4], 25f),
+			new Link(vervletObjects[4], vervletObjects[5], 25f),
+			new Link(vervletObjects[5], vervletObjects[6], 25f),
+			new Link(vervletObjects[6], vervletObjects[7], 25f),
+			new Link(vervletObjects[7], vervletObjects[8], 25f),
+			new Link(vervletObjects[8], vervletObjects[9], 25f),
 		};
 
-		solver = new Solver(vervletObjects, vervletLinks);
+		solver = new VervletSolver(vervletObjects, vervletLinks);
 	}
 
 	protected override void Render(double delta)

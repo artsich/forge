@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Forge.Physics\Forge.Physics.csproj" />
     <ProjectReference Include="..\Forge.Renderer\Forge.Renderer.csproj" />
   </ItemGroup>
 
