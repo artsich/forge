@@ -2,7 +2,7 @@
 
 namespace Forge.Physics;
 
-public class VervletCircleObject
+public class VerletCircleObject
 {
 	private Vector2D<float> positionCurrent;
 	private Vector2D<float> positionOld;
@@ -21,7 +21,7 @@ public class VervletCircleObject
 	public float Radius { get; }
 	public bool IsStatic = false;
 
-	public VervletCircleObject(Vector2D<float> positionCurrent, float radius)
+	public VerletCircleObject(Vector2D<float> positionCurrent, float radius)
 	{
 		PositionCurrent = positionCurrent;
 		positionOld = PositionCurrent;

@@ -2,14 +2,14 @@
 
 namespace Forge.Physics;
 
-public class VervletSolver
+public class VerletSolver
 {
 	private readonly Vector2D<float> gravity = new(0.0f, -981f);
 
-	private readonly IList<VervletCircleObject> objects;
+	private readonly IList<VerletCircleObject> objects;
 	private readonly IList<Link> links;
 
-	public VervletSolver(IList<VervletCircleObject> objects, IList<Link> links)
+	public VerletSolver(IList<VerletCircleObject> objects, IList<Link> links)
 	{
 		this.objects = objects;
 		this.links = links;
@@ -31,7 +31,7 @@ public class VervletSolver
 
 	private void UpdatePositions(float dt)
 	{
-		foreach (VervletCircleObject obj in objects)
+		foreach (VerletCircleObject obj in objects)
 		{
 			obj.UpdatePosition(dt);
 		}
@@ -84,7 +84,7 @@ public class VervletSolver
 		}
 	}
 
-	private static void TryResolve(VervletCircleObject object_1, VervletCircleObject object_2)
+	private static void TryResolve(VerletCircleObject object_1, VerletCircleObject object_2)
 	{
 		var collisionAxis = object_1.PositionCurrent - object_2.PositionCurrent;
 		var distance = collisionAxis.Length;

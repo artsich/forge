@@ -127,9 +127,9 @@ void main()
 
 	public static GameTime Time { get; private set; }
 
-	private VervletSolver solver;
-	private List<VervletCircleObject> vervletObjects;
-	private List<Link> vervletLinks;
+	private VerletSolver solver;
+	private List<VerletCircleObject> verletObjects;
+	private List<Link> verletLinks;
 
 	private readonly Random r = new();
 	private readonly object locker = new();
@@ -144,8 +144,8 @@ void main()
 				{
 					lock (locker)
 					{
-						vervletObjects.Add(
-							new VervletCircleObject(
+						verletObjects.Add(
+							new VerletCircleObject(
 								new Vector2D<float>(
 									r.Next(-200, 200),
 									r.Next(-200, 200)),
@@ -169,34 +169,34 @@ void main()
 			new Shader.ShaderPart(FragmentShaderSource, ShaderType.FragmentShader))
 		.Compile() ?? throw new InvalidOperationException("Shader compilation error!");
 
-		vervletObjects = new()
+		verletObjects = new List<VerletCircleObject>
 		{
-			new VervletCircleObject(new Vector2D<float>(0, 10), 10) { IsStatic = true },
-			new VervletCircleObject(new Vector2D<float>(20, 0), 10),
-			new VervletCircleObject(new Vector2D<float>(40, 0), 10),
-			new VervletCircleObject(new Vector2D<float>(60, 0), 10),
-			new VervletCircleObject(new Vector2D<float>(80, 0), 10),
-			new VervletCircleObject(new Vector2D<float>(100, 0), 10),
-			new VervletCircleObject(new Vector2D<float>(120, 0), 10),
-			new VervletCircleObject(new Vector2D<float>(140, 0), 10),
-			new VervletCircleObject(new Vector2D<float>(160, 0), 10),
-			new VervletCircleObject(new Vector2D<float>(180, 0), 10) { IsStatic = true },
+			new VerletCircleObject(new Vector2D<float>(0, 10), 10) { IsStatic = true },
+			new VerletCircleObject(new Vector2D<float>(20, 0), 10),
+			new VerletCircleObject(new Vector2D<float>(40, 0), 10),
+			new VerletCircleObject(new Vector2D<float>(60, 0), 10),
+			new VerletCircleObject(new Vector2D<float>(80, 0), 10),
+			new VerletCircleObject(new Vector2D<float>(100, 0), 10),
+			new VerletCircleObject(new Vector2D<float>(120, 0), 10),
+			new VerletCircleObject(new Vector2D<float>(140, 0), 10),
+			new VerletCircleObject(new Vector2D<float>(160, 0), 10),
+			new VerletCircleObject(new Vector2D<float>(180, 0), 10) { IsStatic = true },
 		};
 
-		vervletLinks = new List<Link>()
+		verletLinks = new List<Link>()
 		{
-			new Link(vervletObjects[0], vervletObjects[1], 25f),
-			new Link(vervletObjects[1], vervletObjects[2], 25f),
-			new Link(vervletObjects[2], vervletObjects[3], 25f),
-			new Link(vervletObjects[3], vervletObjects[4], 25f),
-			new Link(vervletObjects[4], vervletObjects[5], 25f),
-			new Link(vervletObjects[5], vervletObjects[6], 25f),
-			new Link(vervletObjects[6], vervletObjects[7], 25f),
-			new Link(vervletObjects[7], vervletObjects[8], 25f),
-			new Link(vervletObjects[8], vervletObjects[9], 25f),
+			new Link(verletObjects[0], verletObjects[1], 25f),
+			new Link(verletObjects[1], verletObjects[2], 25f),
+			new Link(verletObjects[2], verletObjects[3], 25f),
+			new Link(verletObjects[3], verletObjects[4], 25f),
+			new Link(verletObjects[4], verletObjects[5], 25f),
+			new Link(verletObjects[5], verletObjects[6], 25f),
+			new Link(verletObjects[6], verletObjects[7], 25f),
+			new Link(verletObjects[7], verletObjects[8], 25f),
+			new Link(verletObjects[8], verletObjects[9], 25f),
 		};
 
-		solver = new VervletSolver(vervletObjects, vervletLinks);
+		solver = new VerletSolver(verletObjects, verletLinks);
 	}
 
 	protected override void Render(double delta)
@@ -205,11 +205,11 @@ void main()
 
 		Shader.Bind();
 
-		var batch = renderer.StartDrawCircles();
+		var batch = renderer!.StartDrawCircles();
 
 		lock (locker)
 		{
-			foreach (var obj in vervletObjects)
+			foreach (var obj in verletObjects)
 			{
 				var renderInfo = new CircleRenderComponent()
 				{

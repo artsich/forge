@@ -2,12 +2,12 @@
 
 public class Link
 {
-	public VervletCircleObject Object1 { get; }
-	public VervletCircleObject Object2 { get; }
+	public VerletCircleObject Object1 { get; }
+	public VerletCircleObject Object2 { get; }
 
 	private float TargetDistance { get; }
 
-    public Link(VervletCircleObject o1, VervletCircleObject o2, float targetDistance)
+    public Link(VerletCircleObject o1, VerletCircleObject o2, float targetDistance)
     {
 		Object1 = o1;
 		Object2 = o2;
