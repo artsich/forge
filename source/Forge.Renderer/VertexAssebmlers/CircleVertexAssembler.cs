@@ -6,6 +6,8 @@ namespace Forge.Renderer.VertexAssebmlers;
 public class CircleVertexAssembler : IVertexAssembler<CircleVertexData, CircleRenderComponent>
 {
     public int VerticesRequired => 4;
+    
+    public uint IndicesRequired => 6;
 
     public unsafe void Pack(Span<CircleVertexData> vertices, ref CircleRenderComponent circle)
     {
@@ -22,7 +24,7 @@ public class CircleVertexAssembler : IVertexAssembler<CircleVertexData, CircleRe
             (-radius, -radius, 0, 0)
         };
 
-        for (int i = 0; i < 4; i++)
+        for (var i = 0; i < 4; i++)
         {
             vertices[i] = new CircleVertexData(
                 new Vector3D<float>(pos.X + offsets[i].r1, pos.Y + offsets[i].r2, 0f),

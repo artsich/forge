@@ -60,7 +60,7 @@ public unsafe class ForgeGame : GameBase
 	private static CompiledShader Shader;
 
 	private static readonly string VertexShaderSource = @"
-        #version 460
+        #version 330 core
         layout (location = 0) in vec3 vPos;
 		layout (location = 1) in vec4 vColor;
 		layout (location = 2) in vec2 vTexCoord;
@@ -85,7 +85,7 @@ public unsafe class ForgeGame : GameBase
         ";
 
 	private static readonly string FragmentShaderSource = @"
-#version 460
+#version 330 core
 
 out vec4 FragColor;
 

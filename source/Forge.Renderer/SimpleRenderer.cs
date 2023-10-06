@@ -16,13 +16,15 @@ public class SimpleRenderer : IDisposable
 			new CircleVertexLayout(), 
 			new CircleVertexAssembler());
 	}
-
+	
+	// todo: can be moved to extensions?
+	// todo: looks not good solution, think about refactoring!
 	public void AddCircle(CircleRenderComponent circle)
 	{
 		circleRenderer.GetBatch().Add(ref circle);
 	}
 
-	public RenderBatch<CircleVertexData, CircleRenderComponent> StartDrawCircles()
+	public Batch<CircleVertexData, CircleRenderComponent> StartDrawCircles()
 	{
 		return circleRenderer.GetBatch();
 	}

@@ -12,7 +12,7 @@ public readonly struct RenderBatchDescription
 	}
 }
 
-public class RenderBatch<TVertex, TRenderComponent>
+public class Batch<TVertex, TRenderComponent>
 	where TVertex : unmanaged
 {
 	private readonly IVertexAssembler<TVertex, TRenderComponent> vertexAssembler;
@@ -21,7 +21,7 @@ public class RenderBatch<TVertex, TRenderComponent>
 
 	public event Action? OnFull;
 
-	public RenderBatch(
+	public Batch(
 		IVertexAssembler<TVertex, TRenderComponent> vertexAssembler,
 		RenderBatchDescription description)
     {
@@ -38,9 +38,10 @@ public class RenderBatch<TVertex, TRenderComponent>
 
 		vertexAssembler.Pack(GetVerticesToPack(), ref renderComponent);
 		verticesUsed += vertexAssembler.VerticesRequired;
+		IndicesUsed += vertexAssembler.IndicesRequired;
 	}
 
-	public void Flush()
+	private void Flush()
 	{
 		OnFull?.Invoke();
 		Reset();
@@ -51,7 +52,9 @@ public class RenderBatch<TVertex, TRenderComponent>
 		verticesUsed = 0;
 	}
 
-	internal Span<TVertex> GetUsedVertices() => vertices.AsSpan()[0..verticesUsed];
+	public Span<TVertex> GetUsedVertices() => vertices.AsSpan()[0..verticesUsed];
+
+	public uint IndicesUsed { get; private set; }
 
 	private Span<TVertex> GetVerticesToPack()
 	{

@@ -5,5 +5,7 @@ public interface IVertexAssembler<TVertex, TRenderComponent>
 {
     int VerticesRequired { get; }
 
+    uint IndicesRequired { get; }
+
     void Pack(Span<TVertex> vertices, ref TRenderComponent circle);
 }

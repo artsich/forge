@@ -13,7 +13,7 @@ internal static class BatchConstants
 	public const int IndicesPerQuad = 6;
 }
 
-public class BatchQuadRenderer<TVertex, TRenderComponent> : IDisposable
+public sealed class BatchQuadRenderer<TVertex, TRenderComponent> : IDisposable
 	where TVertex : unmanaged
 {
 	private const int MaxQuadsPerBatch = 5000;
@@ -21,7 +21,7 @@ public class BatchQuadRenderer<TVertex, TRenderComponent> : IDisposable
 	private const int MaxIndicesPerBatch = BatchConstants.IndicesPerQuad * MaxQuadsPerBatch;
 
 	private readonly GraphicsDevice gd;
-	private readonly RenderBatch<TVertex, TRenderComponent> renderBatch;
+	private readonly Batch<TVertex, TRenderComponent> renderBatch;
 
 	private VertexArrayBuffer? Vao;
 	private Buffer<TVertex>? Vbo;
@@ -34,7 +34,7 @@ public class BatchQuadRenderer<TVertex, TRenderComponent> : IDisposable
 		IVertexLayout vertexLayout,
 		IVertexAssembler<TVertex, TRenderComponent> vertexAssembler)
     {
-		renderBatch = new RenderBatch<TVertex, TRenderComponent>(
+		renderBatch = new Batch<TVertex, TRenderComponent>(
 			vertexAssembler, 
 			new RenderBatchDescription(MaxVerticesPerBatch));
 
@@ -60,7 +60,7 @@ public class BatchQuadRenderer<TVertex, TRenderComponent> : IDisposable
 		vertexLayout.Enable(gd.gl);
 	}
 
-	public RenderBatch<TVertex, TRenderComponent> GetBatch()
+	public Batch<TVertex, TRenderComponent> GetBatch()
 	{
 		return renderBatch;
 	}
@@ -71,12 +71,10 @@ public class BatchQuadRenderer<TVertex, TRenderComponent> : IDisposable
 
 		if (vertices.Length > 0)
 		{
-			uint indicesUsed = (uint)vertices.Length / BatchConstants.VerticesPerQuad * BatchConstants.IndicesPerQuad;
-
 			Vbo!.Bind();
 			Vbo!.SetData(vertices);
 			Vao!.Bind();
-			gd.gl.DrawElements(PrimitiveType.Triangles, indicesUsed, DrawElementsType.UnsignedInt, null);
+			gd.gl.DrawElements(PrimitiveType.Triangles, renderBatch.IndicesUsed, DrawElementsType.UnsignedInt, null);
 
 			renderBatch.Reset();
 		}
