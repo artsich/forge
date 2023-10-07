@@ -1,25 +1,24 @@
 ﻿using Forge.Graphics;
 using Forge.Graphics.Buffers;
 using Forge.Renderer.Layouts;
-using Forge.Renderer.Utils;
 using Forge.Renderer.VertexAssebmlers;
 using Silk.NET.OpenGL;
 
 namespace Forge.Renderer;
 
-internal static class BatchConstants
+public readonly struct BatchRendererDescription
 {
-	public const int VerticesPerQuad = 4;
-	public const int IndicesPerQuad = 6;
+	public readonly int EntitiesCount;
+
+	public BatchRendererDescription(int entitiesCount)
+	{
+		EntitiesCount = entitiesCount;
+	}
 }
 
-public sealed class BatchQuadRenderer<TVertex, TRenderComponent> : IDisposable
+public sealed class BatchRenderer<TVertex, TRenderComponent> : IDisposable
 	where TVertex : unmanaged
 {
-	private const int MaxQuadsPerBatch = 5000;
-	private const int MaxVerticesPerBatch = BatchConstants.VerticesPerQuad * MaxQuadsPerBatch;
-	private const int MaxIndicesPerBatch = BatchConstants.IndicesPerQuad * MaxQuadsPerBatch;
-
 	private readonly GraphicsDevice gd;
 	private readonly Batch<TVertex, TRenderComponent> renderBatch;
 
@@ -29,32 +28,34 @@ public sealed class BatchQuadRenderer<TVertex, TRenderComponent> : IDisposable
 
 	private bool disposed;
 
-	public BatchQuadRenderer(
+	public BatchRenderer(
 		GraphicsDevice gd,
 		IVertexLayout vertexLayout,
-		IVertexAssembler<TVertex, TRenderComponent> vertexAssembler)
+		IGeometryBufferAssembler<TVertex, TRenderComponent> geometryAssembler,
+		BatchRendererDescription description)
     {
 		renderBatch = new Batch<TVertex, TRenderComponent>(
-			vertexAssembler, 
-			new RenderBatchDescription(MaxVerticesPerBatch));
+			geometryAssembler, 
+			description.EntitiesCount);
 
 		renderBatch.OnFull += Flush;
 
 		this.gd = gd;
 
-		InitBuffers(vertexLayout);
+		InitBuffers(vertexLayout,
+			description.EntitiesCount * geometryAssembler.VerticesRequired,
+			geometryAssembler.GetIndices(description.EntitiesCount * (int)geometryAssembler.IndicesRequired));
 	}
 
-	private void InitBuffers(IVertexLayout vertexLayout)
+	private void InitBuffers(IVertexLayout vertexLayout, int maxVerticexPerBatch, uint[] indices)
 	{
 		Vao = new VertexArrayBuffer(gd);
 		Vao.Bind();
 
-		Vbo = Graphics.Buffers.Buffer.Vertex.New<TVertex>(gd, MaxVerticesPerBatch, BufferUsageARB.DynamicDraw);
+		Vbo = Graphics.Buffers.Buffer.Vertex.New<TVertex>(gd, maxVerticexPerBatch, BufferUsageARB.DynamicDraw);
 		Vbo.Bind();
 
-		// todo: it is the same for all batches, so we can just reuse it
-		Ebo = Graphics.Buffers.Buffer.Index.New(gd, ModelUtils.GenerateQuadIndices(MaxIndicesPerBatch));
+		Ebo = Graphics.Buffers.Buffer.Index.New(gd, indices);
 		Ebo.Bind();
 
 		vertexLayout.Enable(gd.gl);
@@ -82,14 +83,14 @@ public sealed class BatchQuadRenderer<TVertex, TRenderComponent> : IDisposable
 
 	public void Dispose()
 	{
-		if (disposed)
-			return;
+		if (!disposed)
+		{
+			renderBatch.OnFull -= Flush;
+			Ebo?.Dispose();
+			Vbo?.Dispose();
+			Vao?.Dispose();
 
-		renderBatch.OnFull -= Flush;
-		Ebo?.Dispose();
-		Vbo?.Dispose();
-		Vao?.Dispose();
-
-		disposed = true;
+			disposed = true;
+		}
 	}
 }

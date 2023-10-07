@@ -7,14 +7,15 @@ namespace Forge.Renderer;
 
 public class SimpleRenderer : IDisposable
 {
-	private readonly BatchQuadRenderer<CircleVertexData, CircleRenderComponent> circleRenderer;
+	private readonly BatchRenderer<CircleVertexData, CircleRenderComponent> circleRenderer;
 
 	public SimpleRenderer(GraphicsDevice graphicsDevice)
 	{
-		circleRenderer = new BatchQuadRenderer<CircleVertexData, CircleRenderComponent>(
+		circleRenderer = new BatchRenderer<CircleVertexData, CircleRenderComponent>(
 			graphicsDevice,
 			new CircleVertexLayout(), 
-			new CircleVertexAssembler());
+			new CircleBufferAssembler(segmentsCount: 12),
+			new BatchRendererDescription(5000));
 	}
 	
 	// todo: can be moved to extensions?

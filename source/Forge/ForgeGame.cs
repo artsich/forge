@@ -97,23 +97,10 @@ uniform float timeTotal;
 
 vec3 lightColor = vec3(1.0, 0.0, 1.0);
 
-const float radius = 0.5;
-
-float circle(vec2 uv, vec2 circleCenter, float r, float blur)
-{
-    float d = length(uv - circleCenter);
-    return smoothstep(r, r-blur, d);
-}
-
 void main()
 {
-	vec2 center = vec2(0.5, 0.5);
-	vec2 uv = fragTexCoord;
-
-	float col = circle(uv, center, radius, fragFade);
-
 	vec3 c = mix(fragColor.rgb, lightColor, sin(timeTotal));
-	FragColor = col * vec4(c, 1.0);
+	FragColor = vec4(c, 1.0);
 }
 ";
 

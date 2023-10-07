@@ -2,31 +2,21 @@
 
 namespace Forge.Renderer;
 
-public readonly struct RenderBatchDescription
-{
-	public readonly int MaxVerticesPerBatch;
-
-	public RenderBatchDescription(int maxVerticesPerBatch)
-	{
-		MaxVerticesPerBatch = maxVerticesPerBatch;
-	}
-}
-
 public class Batch<TVertex, TRenderComponent>
 	where TVertex : unmanaged
 {
-	private readonly IVertexAssembler<TVertex, TRenderComponent> vertexAssembler;
+	private readonly IGeometryBufferAssembler<TVertex, TRenderComponent> vertexAssembler;
 	private readonly TVertex[] vertices;
 	private int verticesUsed;
 
 	public event Action? OnFull;
 
 	public Batch(
-		IVertexAssembler<TVertex, TRenderComponent> vertexAssembler,
-		RenderBatchDescription description)
+		IGeometryBufferAssembler<TVertex, TRenderComponent> vertexAssembler,
+		int entitiesPerBatch)
     {
 		this.vertexAssembler = vertexAssembler;
-		this.vertices = new TVertex[description.MaxVerticesPerBatch];
+		this.vertices = new TVertex[entitiesPerBatch * vertexAssembler.VerticesRequired];
 	}
 
 	public void Add(ref TRenderComponent renderComponent)
@@ -36,9 +26,9 @@ public class Batch<TVertex, TRenderComponent>
 			Flush();
 		}
 
-		vertexAssembler.Pack(GetVerticesToPack(), ref renderComponent);
+		vertexAssembler.Assemble(GetVerticesToPack(), ref renderComponent);
 		verticesUsed += vertexAssembler.VerticesRequired;
-		IndicesUsed += vertexAssembler.IndicesRequired;
+		IndicesUsed += (uint)vertexAssembler.IndicesRequired;
 	}
 
 	private void Flush()
@@ -50,6 +40,7 @@ public class Batch<TVertex, TRenderComponent>
 	public void Reset()
 	{
 		verticesUsed = 0;
+		IndicesUsed = 0;
 	}
 
 	public Span<TVertex> GetUsedVertices() => vertices.AsSpan()[0..verticesUsed];
