@@ -20,7 +20,7 @@ public class VerletSolver
 		var steps = 8;
 		var dtStep = dt / steps;
 
-		for(int i = 0; i < steps; i++)
+		for (int i = 0; i < steps; i++)
 		{
 			ApplyGravity();
 			ApplyConstraints();
@@ -39,7 +39,7 @@ public class VerletSolver
 
 	private void ApplyGravity()
 	{
-		foreach(var obj in objects)
+		foreach (var obj in objects)
 		{
 			obj.ApplyForce(gravity);
 		}
@@ -51,7 +51,7 @@ public class VerletSolver
 		var radius = 500;
 		var myradius = 10f;
 
-		foreach(var obj in objects)
+		foreach (var obj in objects)
 		{
 			var to_obj = obj.PositionCurrent - pos;
 			var distance = to_obj.Length;
@@ -75,7 +75,7 @@ public class VerletSolver
 		for (int i = 0; i < objects.Count; i++)
 		{
 			var object_1 = objects[i];
-			for (int j = i+1; j < objects.Count; j++)
+			for (int j = i + 1; j < objects.Count; j++)
 			{
 				var object_2 = objects[j];
 

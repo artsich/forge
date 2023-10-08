@@ -13,11 +13,11 @@ public class SimpleRenderer : IDisposable
 	{
 		circleRenderer = new BatchRenderer<CircleVertexData, CircleRenderComponent>(
 			graphicsDevice,
-			new CircleVertexLayout(), 
+			new CircleVertexLayout(),
 			new CircleBufferAssembler(segmentsCount: 12),
 			new BatchRendererDescription(5000));
 	}
-	
+
 	// todo: can be moved to extensions?
 	// todo: looks not good solution, think about refactoring!
 	public void AddCircle(CircleRenderComponent circle)

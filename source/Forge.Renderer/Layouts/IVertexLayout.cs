@@ -5,5 +5,5 @@ namespace Forge.Renderer.Layouts;
 // todo: Replace with auto layout
 public interface IVertexLayout
 {
-    void Enable(GL gl);
+	void Enable(GL gl);
 }

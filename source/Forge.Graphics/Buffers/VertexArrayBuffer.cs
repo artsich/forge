@@ -24,7 +24,7 @@ public sealed class VertexArrayBuffer : GraphicsResourceBase
 		GL.BindVertexArray(0);
 	}
 
-	protected override void OnDestroy() 
+	protected override void OnDestroy()
 	{
 		if (id != 0)
 		{

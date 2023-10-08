@@ -33,9 +33,9 @@ public sealed class BatchRenderer<TVertex, TRenderComponent> : IDisposable
 		IVertexLayout vertexLayout,
 		IGeometryBufferAssembler<TVertex, TRenderComponent> geometryAssembler,
 		BatchRendererDescription description)
-    {
+	{
 		renderBatch = new Batch<TVertex, TRenderComponent>(
-			geometryAssembler, 
+			geometryAssembler,
 			description.EntitiesCount);
 
 		renderBatch.OnFull += Flush;

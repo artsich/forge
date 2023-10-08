@@ -31,10 +31,10 @@ public class CompiledShader : GraphicsResourceBase
 
 	public void BindUniforms(params object[] sources)
 	{
-		foreach(var source in sources)
+		foreach (var source in sources)
 		{
 			BindUniform(source);
-		}	
+		}
 	}
 
 	protected override void OnDestroy()

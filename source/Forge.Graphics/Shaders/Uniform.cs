@@ -16,7 +16,7 @@ public partial class Uniform
 	public int Size { get; }
 
 	public Uniform(CompiledShader cs, int location, string name, UniformType type, int size)
-    {
+	{
 		this.cs = cs;
 
 		gl = cs.GL;

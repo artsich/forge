@@ -44,7 +44,7 @@ public unsafe partial class Buffer : GraphicsResourceBase
 	internal BufferUsageARB BufferUsageHint;
 	internal BufferTargetARB BufferTarget;
 	internal int SizeInBytes;
-	
+
 	public int ElementSize { get; private set; }
 	public int ElementCount { get; private set; }
 

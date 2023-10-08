@@ -7,8 +7,8 @@ public class Link
 
 	private float TargetDistance { get; }
 
-    public Link(VerletCircleObject o1, VerletCircleObject o2, float targetDistance)
-    {
+	public Link(VerletCircleObject o1, VerletCircleObject o2, float targetDistance)
+	{
 		Object1 = o1;
 		Object2 = o2;
 		TargetDistance = targetDistance;

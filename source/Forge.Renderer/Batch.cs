@@ -14,14 +14,14 @@ public class Batch<TVertex, TRenderComponent>
 	public Batch(
 		IGeometryBufferAssembler<TVertex, TRenderComponent> vertexAssembler,
 		int entitiesPerBatch)
-    {
+	{
 		this.vertexAssembler = vertexAssembler;
 		this.vertices = new TVertex[entitiesPerBatch * vertexAssembler.VerticesRequired];
 	}
 
 	public void Add(ref TRenderComponent renderComponent)
 	{
-		if (verticesUsed + vertexAssembler.VerticesRequired == vertices.Length) 
+		if (verticesUsed + vertexAssembler.VerticesRequired == vertices.Length)
 		{
 			Flush();
 		}

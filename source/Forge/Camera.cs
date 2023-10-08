@@ -17,7 +17,7 @@ public class CameraData
 	[Uniform("ViewProj")]
 	public Matrix4X4<float> ViewProjection => View * Projection;
 
-	public CameraData(Matrix4X4<float> projection) 
+	public CameraData(Matrix4X4<float> projection)
 		: this(projection, Matrix4X4<float>.Identity)
 	{
 	}
@@ -43,7 +43,7 @@ public class Camera2DController
 	public float ZoomSpeed { get; init; } = 0.1f;
 
 	public Camera2DController(CameraData cameraData, IMouse mouse)
-    {
+	{
 		CameraData = cameraData;
 
 		this.mouse = mouse;
@@ -85,7 +85,7 @@ public class Camera2DController
 	{
 		if (button == MouseButton.Middle)
 		{
-			startMovePosition = new (mouse.Position.X, mouse.Position.Y);
+			startMovePosition = new(mouse.Position.X, mouse.Position.Y);
 		}
 	}
 
