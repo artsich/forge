@@ -6,6 +6,7 @@ using Shader = Forge.Graphics.Shaders.Shader;
 using Forge.Renderer.Components;
 using Forge.Renderer;
 using Forge.Physics;
+using Silk.NET.Input;
 
 namespace Forge;
 
@@ -123,29 +124,10 @@ void main()
 
 	protected override void LoadGame()
 	{
-		PrimaryKeyboard!.KeyDown += (_, key, _) =>
-		{
-			if (key == Silk.NET.Input.Key.Space)
-			{
-				AddGameLogicTask(() =>
-				{
-					lock (locker)
-					{
-						verletObjects.Add(
-							new VerletCircleObject(
-								new Vector2D<float>(
-									r.Next(-200, 200),
-									r.Next(-200, 200)),
-								r.Next(10, 20)));
-					}
-				});
-			}
-		};
-
 		Gl = GraphicsDevice!.gl;
 		camera2D = new Camera2DController(camera, PrimaryMouse!)
 		{
-			Speed = 100f
+			Speed = 2000f
 		};
 
 		renderer = new SimpleRenderer(GraphicsDevice);
@@ -186,7 +168,7 @@ void main()
 		solver = new VerletSolver(verletObjects, verletLinks);
 	}
 
-	protected override void Render(double delta)
+	protected override void OnRender(double delta)
 	{
 		Gl.Clear(ClearBufferMask.ColorBufferBit);
 
@@ -194,19 +176,16 @@ void main()
 
 		var batch = renderer!.StartDrawCircles();
 
-		lock (locker)
+		foreach (var obj in verletObjects)
 		{
-			foreach (var obj in verletObjects)
+			var renderInfo = new CircleRenderComponent()
 			{
-				var renderInfo = new CircleRenderComponent()
-				{
-					Color = new Vector4D<float>(1.0f, 0.5f, 0.5f, 1.0f),
-					Position = obj.PositionCurrent,
-					Radius = obj.Radius,
-				};
+				Color = new Vector4D<float>(1.0f, 0.5f, 0.5f, 1.0f),
+				Position = obj.PositionCurrent,
+				Radius = obj.Radius,
+			};
 
-				batch.Add(ref renderInfo);
-			}
+			batch.Add(ref renderInfo);
 		}
 
 		renderer.FlushAll();
@@ -214,7 +193,7 @@ void main()
 		//circleDrawer.DrawCircles(renderer!);
 	}
 
-	protected override void Update(GameTime time)
+	protected override void OnUpdate(GameTime time)
 	{
 		AddRenderTask(() =>
 		{
@@ -225,6 +204,16 @@ void main()
 		camera2D.Update(time);
 
 		solver.Update(time.DeltaTime);
+
+		if (PrimaryKeyboard!.IsKeyPressed(Key.Space))
+		{
+			verletObjects.Add(
+				new VerletCircleObject(
+					new Vector2D<float>(
+						r.Next(-200, 200),
+						r.Next(-200, 200)),
+					r.Next(10, 20)));
+		}
 	}
 
 	protected override void OnClose()
