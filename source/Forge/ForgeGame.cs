@@ -7,6 +7,7 @@ using Forge.Renderer.Components;
 using Forge.Renderer;
 using Forge.Physics;
 using Silk.NET.Input;
+using Forge.Graphics;
 
 namespace Forge;
 
@@ -96,11 +97,14 @@ in vec4 fragColor;
 
 uniform float timeTotal;
 
+uniform sampler2D texture1;
+
 vec3 lightColor = vec3(1.0, 0.0, 1.0);
 
 void main()
 {
-	vec3 c = mix(fragColor.rgb, lightColor, sin(timeTotal));
+	vec3 texColor = texture(texture1, fragTexCoord).xyz;
+	vec3 c = mix(fragColor.rgb, lightColor, sin(timeTotal)) * texColor;
 	FragColor = vec4(c, 1.0);
 }
 ";
@@ -112,6 +116,8 @@ void main()
 	private Camera2DController camera2D;
 
 	private readonly CircleDrawer circleDrawer = new(1920, 1080);
+
+	private Texture2d texture;
 
 	public static GameTime Time { get; private set; }
 
@@ -137,6 +143,8 @@ void main()
 			new Shader.ShaderPart(VertexShaderSource, ShaderType.VertexShader),
 			new Shader.ShaderPart(FragmentShaderSource, ShaderType.FragmentShader))
 		.Compile() ?? throw new InvalidOperationException("Shader compilation error!");
+
+		texture = new Texture2d(GraphicsDevice, new byte[] { 0, 255, 0, 255 }, 1, 1);
 
 		verletObjects = new List<VerletCircleObject>
 		{
@@ -174,6 +182,8 @@ void main()
 
 		Shader.Bind();
 
+		texture.Bind();
+
 		var batch = renderer!.StartDrawCircles();
 
 		foreach (var obj in verletObjects)
@@ -197,7 +207,7 @@ void main()
 	{
 		AddRenderTask(() =>
 		{
-			Shader.BindUniforms(time, camera2D.CameraData);
+			Shader.BindUniforms(camera2D.CameraData);
 		});
 
 		Time = time;

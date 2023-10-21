@@ -75,6 +75,7 @@ public sealed class BatchRenderer<TVertex, TRenderComponent> : IDisposable
 			Vbo!.Bind();
 			Vbo!.SetData(vertices);
 			Vao!.Bind();
+
 			gd.gl.DrawElements(PrimitiveType.Triangles, renderBatch.IndicesUsed, DrawElementsType.UnsignedInt, null);
 
 			renderBatch.Reset();
