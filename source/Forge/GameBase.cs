@@ -9,7 +9,7 @@ namespace Forge;
 
 public abstract class GameBase
 {
-	private readonly IWindow _window;
+	protected readonly IWindow _window;
 
 	protected GraphicsDevice? GraphicsDevice;
 

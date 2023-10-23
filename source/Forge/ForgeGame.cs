@@ -1,13 +1,14 @@
-﻿using Forge.Graphics.Shaders;
+﻿using Forge.Graphics;
+using Forge.Graphics.Buffers;
+using Forge.Graphics.Shaders;
+using Forge.Physics;
+using Forge.Renderer;
+using Forge.Renderer.Components;
+using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using System.Drawing;
 using Shader = Forge.Graphics.Shaders.Shader;
-using Forge.Renderer.Components;
-using Forge.Renderer;
-using Forge.Physics;
-using Silk.NET.Input;
-using Forge.Graphics;
 
 namespace Forge;
 
@@ -38,8 +39,8 @@ public class CircleDrawer
 		float deltaX = radius * 2;
 		float deltaY = radius * 2;
 
-		int startX = -screenWidth/2;
-		int startY = -screenHeight/2;
+		int startX = -screenWidth / 2;
+		int startY = -screenHeight / 2;
 
 		for (int i = 0; i < circlesInXDirection; i++)
 		{
@@ -60,6 +61,7 @@ public unsafe class ForgeGame : GameBase
 	private static GL Gl;
 
 	private static CompiledShader Shader;
+	private static CompiledShader PostProcessingShader;
 
 	private static readonly string VertexShaderSource = @"
         #version 330 core
@@ -109,15 +111,57 @@ void main()
 }
 ";
 
+	private static readonly string PostProcesssingVertexShader = @"
+#version 330 core
+layout (location = 0) in vec2 aPos;
+layout (location = 1) in vec2 aTexCoords;
+
+out vec2 TexCoords;
+
+void main()
+{
+    gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0); 
+    TexCoords = aTexCoords;
+}
+";
+
+	private static readonly string PostProcesssingFragmentShader = @"
+#version 330 core
+out vec4 FragColor;
+  
+in vec2 TexCoords;
+
+uniform sampler2D screenTexture;
+
+void main()
+{ 
+    FragColor = texture(screenTexture, TexCoords);
+}
+";
+
 	private readonly CameraData camera = new(Matrix4X4.CreateOrthographic(1280, 720, 0.1f, 100.0f));
 
 	private SimpleRenderer? renderer;
 
 	private Camera2DController camera2D;
 
-	private readonly CircleDrawer circleDrawer = new(1920, 1080);
-
 	private Texture2d texture;
+
+	private FrameBuffer framebuffer;
+
+	private float[] quadVertices = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+		// positions // texCoords
+		-1.0f,  1.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f, 0.0f,
+		 1.0f, -1.0f, 1.0f, 0.0f,
+
+		-1.0f,  1.0f, 0.0f, 1.0f,
+		 1.0f, -1.0f, 1.0f, 0.0f,
+		 1.0f,  1.0f, 1.0f, 1.0f
+	};
+
+	private VertexArrayBuffer quadVao;
+	private Buffer<float> quadVBO;
 
 	public static GameTime Time { get; private set; }
 
@@ -126,7 +170,6 @@ void main()
 	private List<Link> verletLinks;
 
 	private readonly Random r = new();
-	private readonly object locker = new();
 
 	protected override void LoadGame()
 	{
@@ -144,7 +187,28 @@ void main()
 			new Shader.ShaderPart(FragmentShaderSource, ShaderType.FragmentShader))
 		.Compile() ?? throw new InvalidOperationException("Shader compilation error!");
 
+		PostProcessingShader = new Shader(
+			GraphicsDevice,
+				new Shader.ShaderPart(PostProcesssingVertexShader, ShaderType.VertexShader),
+				new Shader.ShaderPart(PostProcesssingFragmentShader, ShaderType.FragmentShader))
+			.Compile() ?? throw new InvalidOperationException("Shader compilation error!");
+
+		framebuffer = new FrameBuffer(GraphicsDevice);
+		framebuffer.Configure(1280, 720);
+
 		texture = new Texture2d(GraphicsDevice, new byte[] { 0, 255, 0, 255 }, 1, 1);
+
+		quadVao = new VertexArrayBuffer(GraphicsDevice);
+		quadVao.Bind();
+		quadVBO = Graphics.Buffers.Buffer.Vertex.New(GraphicsDevice, quadVertices, BufferUsageARB.StaticDraw);
+		quadVBO.Bind();
+
+		Gl.EnableVertexAttribArray(0);
+		Gl.VertexAttribPointer(0, 2, GLEnum.Float, false, 4 * sizeof(float), (void*)0);
+		Gl.EnableVertexAttribArray(1);
+		Gl.VertexAttribPointer(1, 2, GLEnum.Float, false, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+		quadVao.Unbind();
 
 		verletObjects = new List<VerletCircleObject>
 		{
@@ -178,11 +242,13 @@ void main()
 
 	protected override void OnRender(double delta)
 	{
+		framebuffer.Bind();
 		Gl.Clear(ClearBufferMask.ColorBufferBit);
 
 		Shader.Bind();
-
 		texture.Bind();
+
+		Gl.Viewport(new Size(1280, 720));
 
 		var batch = renderer!.StartDrawCircles();
 
@@ -199,8 +265,17 @@ void main()
 		}
 
 		renderer.FlushAll();
+		framebuffer.Unbind();
 
-		//circleDrawer.DrawCircles(renderer!);
+		Gl.Clear(ClearBufferMask.ColorBufferBit);
+
+		Gl.Viewport(_window.Size);
+
+		PostProcessingShader.Bind();
+		quadVao.Bind();
+		Gl.Disable(EnableCap.DepthTest);
+		Gl.BindTexture(TextureTarget.Texture2D, framebuffer.Texture0);
+		Gl.DrawArrays(PrimitiveType.Triangles, 0, 6);
 	}
 
 	protected override void OnUpdate(GameTime time)
@@ -231,9 +306,8 @@ void main()
 		Shader.Dispose();
 	}
 
-	protected override void OnResize(Vector2D<int> obj)
+	protected override void OnResize(Vector2D<int> size)
 	{
-		Gl.Viewport(new Size(obj.X, obj.Y));
-		camera.Projection = Matrix4X4.CreateOrthographic(obj.X, obj.Y, 0.1f, 100.0f);
+		Gl.Viewport(size);
 	}
 }
