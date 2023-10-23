@@ -308,6 +308,5 @@ void main()
 
 	protected override void OnResize(Vector2D<int> size)
 	{
-		Gl.Viewport(size);
 	}
 }
