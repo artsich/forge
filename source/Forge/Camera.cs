@@ -35,6 +35,7 @@ public class Camera2DController
 
 	private float currentZoom = 1.0f;
 	private Vector2D<float> startMovePosition;
+	private bool moving;
 
 	public CameraData CameraData { get; private set; }
 
@@ -48,12 +49,26 @@ public class Camera2DController
 
 		this.mouse = mouse;
 		this.mouse.MouseDown += OnMouseBtnDown;
+		this.mouse.MouseUp += (mouse, button) => moving = false;
 		this.mouse.MouseMove += OnMouseMove;
 		this.mouse.Scroll += OnMouseScroll;
 	}
 
 	public void Update(GameTime gameTime)
 	{
+		if (moving)
+		{
+			var curMousePosition = new Vector2D<float>(mouse.Position.X, mouse.Position.Y);
+			if (curMousePosition == startMovePosition)
+			{
+				return;
+			}
+
+			var dir = Vector2D.Normalize(curMousePosition - startMovePosition) * new Vector2D<float>(1, -1);
+			var actualSpeed = Speed / currentZoom;
+			ApplyTranslation(dir * actualSpeed * gameTime.DeltaTime);
+			startMovePosition = curMousePosition;
+		}
 	}
 
 	private void OnMouseScroll(IMouse mouse, ScrollWheel scroll)
@@ -68,16 +83,7 @@ public class Camera2DController
 	{
 		if (mouse.IsButtonPressed(MouseButton.Middle))
 		{
-			var curMousePosition = new Vector2D<float>(mouse.Position.X, mouse.Position.Y);
-			if (curMousePosition == startMovePosition)
-			{
-				return;
-			}
-
-			var dir = Vector2D.Normalize(curMousePosition - startMovePosition) * new Vector2D<float>(1, -1);
-			var actualSpeed = Speed / currentZoom;
-			ApplyTranslation(dir * actualSpeed * ForgeGame.Time.DeltaTime);
-			startMovePosition = curMousePosition;
+			moving = true;
 		}
 	}
 
