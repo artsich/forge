@@ -1,46 +1,113 @@
 ﻿using Silk.NET.OpenGL;
+using System.Drawing;
 
 namespace Forge.Graphics;
 
-public class Texture2d : GraphicsResourceBase
+public enum TextureWrap
 {
-	private readonly uint _handle;
+	Repeat,
+	MirroredRepeat,
+	ClampToEdge,
+	ClampToBorder
+}
 
-	public unsafe Texture2d(GraphicsDevice gd, Span<byte> data, uint width, uint height)
-		: base(gd)
+public enum MinMagFilter
+{
+	Nearest,
+	Linear
+}
+
+public sealed class Texture2d : GraphicsResourceBase
+{
+	private readonly bool mipmap;
+
+	internal uint Handle { get; private set; }
+
+	public Size Size { get; }
+
+	public unsafe Texture2d(uint width, uint height, Span<byte> data = default, bool mipmap = true)
+		: base(GraphicsDevice.Current)
 	{
-		_handle = GL.GenTexture();
-		var target = TextureTarget.Texture2D;
-		GL.BindTexture(target, _handle);
+		Size = new Size((int)width, (int)height);
+		Handle = GL.CreateTexture(GLEnum.Texture2D);
+		GL.BindTexture(GLEnum.Texture2D, Handle);
 
-		fixed (void* d = &data[0])
+		if (!data.IsEmpty)
 		{
-			GL.TexImage2D(target, 0, (int)InternalFormat.Rgba, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, d);
+			fixed (void* d = &data[0])
+			{
+				GL.TexImage2D(GLEnum.Texture2D, 0, (int)InternalFormat.Rgba, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, d);
+			}
+		}
+		else
+		{
+			GL.TexImage2D(GLEnum.Texture2D, 0, (int)InternalFormat.Rgba, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, null);
 		}
 
-		SetParameters();
+		if (mipmap)
+		{
+			GL.GenerateMipmap(TextureTarget.Texture2D);
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBaseLevel, 0);
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 8);
+		}
+
+		Wrap = TextureWrap.Repeat;
+		Filter = MinMagFilter.Nearest;
+
+		GL.BindTexture(GLEnum.Texture2D, 0);
 	}
 
-	private void SetParameters()
+	public TextureWrap Wrap
 	{
-		GL.GenerateMipmap(TextureTarget.Texture2D);
+		set
+		{
+			Bind();
 
-		GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)GLEnum.Repeat);
-		GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)GLEnum.Repeat);
-		GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)GLEnum.Nearest);
-		GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)GLEnum.NearestMipmapNearest);
+			var param = value switch
+			{
+				TextureWrap.Repeat => (int)GLEnum.Repeat,
+				TextureWrap.MirroredRepeat => (int)GLEnum.MirroredRepeat,
+				TextureWrap.ClampToEdge => (int)GLEnum.ClampToEdge,
+				TextureWrap.ClampToBorder => (int)GLEnum.ClampToBorder,
+				_ => throw new NotImplementedException(),
+			};
 
-		//GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBaseLevel, 0);
-		//GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 8);
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, param);
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, param);
+		}
+	}
+
+	public MinMagFilter Filter
+	{
+		set
+		{
+			Bind();
+
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
+				value switch
+				{
+					MinMagFilter.Nearest => (int)GLEnum.Nearest,
+					MinMagFilter.Linear => (int)GLEnum.Linear,
+					_ => throw new NotImplementedException()
+				});
+
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
+				value switch
+				{
+					MinMagFilter.Nearest => mipmap ? (int)GLEnum.NearestMipmapNearest : (int)GLEnum.Nearest,
+					MinMagFilter.Linear => mipmap ? (int)GLEnum.LinearMipmapLinear : (int)GLEnum.Linear,
+					_ => throw new NotImplementedException()
+				});
+		}
 	}
 
 	public void Bind(int slot = 0)
 	{
-		GL.BindTextureUnit((uint)slot, _handle);
+		GL.BindTextureUnit((uint)slot, Handle);
 	}
 
 	protected override void OnDestroy()
 	{
-		GL.DeleteTexture(_handle);
+		GL.DeleteTexture(Handle);
 	}
 }

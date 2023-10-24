@@ -58,6 +58,7 @@ public class CircleDrawer
 
 public unsafe class ForgeGame : GameBase
 {
+	public const int Width = 1280, Height = 720;
 	private static GL Gl;
 
 	private static CompiledShader Shader;
@@ -139,7 +140,7 @@ void main()
 }
 ";
 
-	private readonly CameraData camera = new(Matrix4X4.CreateOrthographic(1280, 720, 0.1f, 100.0f));
+	private readonly CameraData camera = new(Matrix4X4.CreateOrthographic(Width, Height, 0.1f, 100.0f));
 
 	private SimpleRenderer? renderer;
 
@@ -148,6 +149,7 @@ void main()
 	private Texture2d texture;
 
 	private FrameBuffer framebuffer;
+	private FrameBuffer defaultFb;
 
 	private float[] quadVertices = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
 		// positions // texCoords
@@ -193,10 +195,16 @@ void main()
 				new Shader.ShaderPart(PostProcesssingFragmentShader, ShaderType.FragmentShader))
 			.Compile() ?? throw new InvalidOperationException("Shader compilation error!");
 
-		framebuffer = new FrameBuffer(GraphicsDevice);
-		framebuffer.Configure(1280, 720);
+		framebuffer = new FrameBuffer(
+			new Size(Width,Height),
+			new[]
+			{
+				new Texture2d(Width, Height, mipmap: false)
+			});
 
-		texture = new Texture2d(GraphicsDevice, new byte[] { 0, 255, 0, 255 }, 1, 1);
+		defaultFb = new FrameBuffer(new (Width, Height));
+
+		texture = new Texture2d(1, 1, new byte[] { 0, 255, 0, 255 });
 
 		quadVao = new VertexArrayBuffer(GraphicsDevice);
 		quadVao.Bind();
@@ -243,12 +251,10 @@ void main()
 	protected override void OnRender(double delta)
 	{
 		framebuffer.Bind();
-		Gl.Clear(ClearBufferMask.ColorBufferBit);
+		framebuffer.Clear();
 
 		Shader.Bind();
 		texture.Bind();
-
-		Gl.Viewport(new Size(1280, 720));
 
 		var batch = renderer!.StartDrawCircles();
 
@@ -267,14 +273,17 @@ void main()
 		renderer.FlushAll();
 		framebuffer.Unbind();
 
-		Gl.Clear(ClearBufferMask.ColorBufferBit);
-
-		Gl.Viewport(_window.Size);
+		defaultFb.Bind();
+		defaultFb.Clear();
 
 		PostProcessingShader.Bind();
 		quadVao.Bind();
+
+		// todo: should i make it part of framebuffer?
 		Gl.Disable(EnableCap.DepthTest);
-		Gl.BindTexture(TextureTarget.Texture2D, framebuffer.Texture0);
+
+		framebuffer.Colors.ElementAt(0).Bind(0);
+
 		Gl.DrawArrays(PrimitiveType.Triangles, 0, 6);
 	}
 
@@ -308,5 +317,6 @@ void main()
 
 	protected override void OnResize(Vector2D<int> size)
 	{
+		defaultFb.Resize(new Size(size.X, size.Y));
 	}
 }
