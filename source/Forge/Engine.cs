@@ -7,7 +7,7 @@ using System.Collections.Concurrent;
 
 namespace Forge;
 
-public abstract class GameBase
+public abstract class Engine
 {
 	protected readonly IWindow _window;
 
@@ -21,7 +21,7 @@ public abstract class GameBase
 	private double totalTime = 0.0;
 	private double fpsCounter = 0;
 
-	public GameBase()
+	public Engine()
 	{
 		var options = WindowOptions.Default;
 		options.API = new GraphicsAPI()

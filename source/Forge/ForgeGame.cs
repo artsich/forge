@@ -56,7 +56,7 @@ public class CircleDrawer
 	}
 }
 
-public unsafe class ForgeGame : GameBase
+public unsafe class ForgeGame : Engine
 {
 	public const int Width = 1280, Height = 720;
 	private static GL Gl;
