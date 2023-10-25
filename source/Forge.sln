@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Forge.Graphics", "Forge.Gra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Forge.Renderer", "Forge.Renderer\Forge.Renderer.csproj", "{D8058BEB-42A3-4458-B69E-67AC8C760F01}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forge.Physics", "Forge.Physics\Forge.Physics.csproj", "{BE9FA14B-515E-474A-A8C6-ADAF5DDF5FA8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Forge.Physics", "Forge.Physics\Forge.Physics.csproj", "{BE9FA14B-515E-474A-A8C6-ADAF5DDF5FA8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

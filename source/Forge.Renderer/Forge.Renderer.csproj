@@ -11,4 +11,14 @@
     <ProjectReference Include="..\Forge.Graphics\Forge.Graphics.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ThirdParty\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ThirdParty\msdf-atlas-gen.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
