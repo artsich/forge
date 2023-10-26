@@ -2,7 +2,5 @@
 
 public interface IFontService
 {
-	byte[] GetTextureData();
-
-	FontMeta GetMeta();
+	SpriteFont GetSpriteFont();
 }
