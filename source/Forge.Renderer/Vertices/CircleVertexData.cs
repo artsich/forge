@@ -2,9 +2,9 @@
 using Silk.NET.OpenGL;
 using System.Runtime.CompilerServices;
 
-namespace Forge.Renderer;
+namespace Forge.Renderer.Vertices;
 
-public readonly struct CircleVertexData
+public readonly struct CircleVertex
 {
 	public readonly Vector3D<float> Position;
 	public readonly Vector4D<float> Color;
@@ -27,7 +27,7 @@ public readonly struct CircleVertexData
 		sizeof(float)
 	};
 
-	public CircleVertexData(Vector3D<float> position, Vector2D<float> texCoord, Vector4D<float> color, float fade)
+	public CircleVertex(Vector3D<float> position, Vector2D<float> texCoord, Vector4D<float> color, float fade)
 	{
 		Position = position;
 		TexCoord = texCoord;
@@ -37,7 +37,7 @@ public readonly struct CircleVertexData
 
 	public static unsafe void EnableVertexPointer(GL gl)
 	{
-		uint size = (uint)Unsafe.SizeOf<CircleVertexData>();
+		uint size = (uint)Unsafe.SizeOf<CircleVertex>();
 		int offset = 0;
 		for (int i = 0; i < offsets.Length; i++)
 		{

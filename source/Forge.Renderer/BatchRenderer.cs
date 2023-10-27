@@ -16,7 +16,7 @@ public readonly struct BatchRendererDescription
 	}
 }
 
-public sealed class BatchRenderer<TVertex, TRenderComponent> : IDisposable
+public class BatchRenderer<TVertex, TRenderComponent> : IDisposable
 	where TVertex : unmanaged
 {
 	private readonly GraphicsDevice gd;

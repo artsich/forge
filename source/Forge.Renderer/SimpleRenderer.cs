@@ -1,17 +1,22 @@
 ﻿using Forge.Graphics;
+using Forge.Graphics.Shaders;
 using Forge.Renderer.Components;
+using Forge.Renderer.Font;
 using Forge.Renderer.Layouts;
 using Forge.Renderer.VertexAssebmlers;
+using Forge.Renderer.Vertices;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Forge.Renderer;
 
-public class SimpleRenderer : IDisposable
+public class Renderer2D : IDisposable
 {
-	private readonly BatchRenderer<CircleVertexData, CircleRenderComponent> circleRenderer;
+	private readonly BatchRenderer<CircleVertex, CircleRenderComponent> circleRenderer;
 
-	public SimpleRenderer(GraphicsDevice graphicsDevice)
+	public Renderer2D(GraphicsDevice graphicsDevice)
 	{
-		circleRenderer = new BatchRenderer<CircleVertexData, CircleRenderComponent>(
+		circleRenderer = new BatchRenderer<CircleVertex, CircleRenderComponent>(
 			graphicsDevice,
 			new CircleVertexLayout(),
 			new CircleBufferAssembler(segmentsCount: 12),
@@ -25,7 +30,7 @@ public class SimpleRenderer : IDisposable
 		circleRenderer.GetBatch().Add(ref circle);
 	}
 
-	public Batch<CircleVertexData, CircleRenderComponent> StartDrawCircles()
+	public Batch<CircleVertex, CircleRenderComponent> StartDrawCircles()
 	{
 		return circleRenderer.GetBatch();
 	}

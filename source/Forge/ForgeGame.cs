@@ -4,6 +4,7 @@ using Forge.Graphics.Shaders;
 using Forge.Physics;
 using Forge.Renderer;
 using Forge.Renderer.Components;
+using Forge.Renderer.Font;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -25,7 +26,7 @@ public class CircleDrawer
 		this.screenHeight = screenHeight;
 	}
 
-	public void DrawCircles(SimpleRenderer renderer)
+	public void DrawCircles(Renderer2D renderer)
 	{
 		int circlesInXDirection = (int)Math.Sqrt(CircleCount * screenWidth / (float)screenHeight);
 		int circlesInYDirection = CircleCount / circlesInXDirection;
@@ -58,7 +59,7 @@ public class CircleDrawer
 
 public unsafe class ForgeGame : Engine
 {
-	public const int Width = 1280, Height = 720;
+	public const int Width = 1920, Height = 1080;
 	private static GL Gl;
 
 	private static CompiledShader Shader;
@@ -142,7 +143,7 @@ void main()
 
 	private readonly CameraData camera = new(Matrix4X4.CreateOrthographic(Width, Height, 0.1f, 100.0f));
 
-	private SimpleRenderer? renderer;
+	private Renderer2D? renderer;
 
 	private Camera2DController camera2D;
 
@@ -181,7 +182,7 @@ void main()
 			Speed = 2000f
 		};
 
-		renderer = new SimpleRenderer(GraphicsDevice);
+		renderer = new Renderer2D(GraphicsDevice);
 
 		Shader = new Shader(
 			GraphicsDevice,
@@ -196,13 +197,13 @@ void main()
 			.Compile() ?? throw new InvalidOperationException("Shader compilation error!");
 
 		framebuffer = new FrameBuffer(
-			new Size(Width,Height),
+			new Size(Width, Height),
 			new[]
 			{
 				new Texture2d(Width, Height, mipmap: false)
 			});
 
-		defaultFb = new FrameBuffer(new (Width, Height));
+		defaultFb = new FrameBuffer(new(_window.Size.X, _window.Size.Y));
 
 		texture = new Texture2d(1, 1, new byte[] { 0, 255, 0, 255 });
 
@@ -246,8 +247,68 @@ void main()
 		};
 
 		solver = new VerletSolver(verletObjects, verletLinks);
+
+		var fontShader = new Shader(GraphicsDevice.Current,
+			new Shader.ShaderPart(
+@"
+#version 330 core
+
+layout(location = 0) in vec2 v_pos;
+layout(location = 1) in vec2 v_uv;
+layout(location = 2) in vec4 v_color;
+
+out vec2 TexCoords;
+out vec4 Color;
+
+uniform mat4 cameraProj;
+uniform mat4 cameraView;
+
+void main()
+{
+	TexCoords = v_uv;
+	Color = v_color;
+	gl_Position = cameraProj * cameraView * vec4(v_pos, 0.0, 1.0);
+}
+
+", ShaderType.VertexShader),
+			new Shader.ShaderPart(
+@"
+#version 330 core
+
+in vec2 TexCoords;
+in vec4 Color;
+
+out vec4 o_color;
+
+uniform sampler2D text;
+uniform vec3 textColor = vec3(1.0);
+
+const float width = 0.4;
+const float edge = 0.1;
+
+void main()
+{
+	float distanceRange = 2;
+    float distance = texture(text, TexCoords).r;
+    float alpha = smoothstep(width - edge, width + edge, distance);
+	
+	o_color = vec4(Color.xyz, alpha);
+}
+
+", ShaderType.FragmentShader))
+			.Compile() ?? throw new InvalidOperationException("Shader compilation error!");
+
+		fontRenderer = new FontRenderer(
+			new MsdfAtlasGen()
+				.GenerateAtlas("C:\\Windows\\Fonts\\consola.ttf")
+				.GetSpriteFont(),
+			fontShader);
 	}
 
+	FontRenderer fontRenderer;
+
+	float timer;
+	float fps;
 	protected override void OnRender(double delta)
 	{
 		framebuffer.Bind();
@@ -271,6 +332,28 @@ void main()
 		}
 
 		renderer.FlushAll();
+
+		timer += (float)delta;
+		if (timer > 1)
+		{
+			timer = 0;
+			fps = 1.0f / (float)delta;
+		}
+
+		Gl.Enable(GLEnum.Blend);
+		Gl.BlendFunc(GLEnum.SrcAlpha, GLEnum.OneMinusSrcAlpha);
+
+		timer += (float)delta;
+
+		fontRenderer.Push(new TextRenderComponent(
+			$"FPS: {fps:0.000}, delta: {delta}",
+			new Vector2D<float>(-Width/2f + 50, Height/2f - 50),
+			32f,
+			new Vector4D<float>(1f, 0f, 0f, 1f)));
+
+		fontRenderer.Flush(camera);
+
+		Gl.Disable(GLEnum.Blend);
 		framebuffer.Unbind();
 
 		defaultFb.Bind();

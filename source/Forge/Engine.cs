@@ -19,7 +19,6 @@ public abstract class Engine
 	protected IMouse? PrimaryMouse;
 
 	private double totalTime = 0.0;
-	private double fpsCounter = 0;
 
 	public Engine()
 	{
@@ -37,9 +36,6 @@ public abstract class Engine
 		options.Title = "Forge";
 		options.VSync = false;
 
-		//options.FramesPerSecond = framerate;
-		//options.UpdatesPerSecond = framerate;
-
 		_window = Window.Create(options);
 
 		_window.Load += OnLoad;
@@ -56,15 +52,6 @@ public abstract class Engine
 		_window.Update += (dt) =>
 		{
 			totalTime += dt;
-			fpsCounter += dt;
-			if (fpsCounter > 1.0)
-			{
-				var fps = 1.0 / dt;
-				var ms = dt * 1000.0;
-				_window.Title = "Forge - MS: " + ms.ToString("0.00") + ". FPS: " + fps.ToString("0.00");
-				fpsCounter = 0.0;
-			}
-
 			OnUpdate(new GameTime((float)totalTime, (float)dt));
 		};
 

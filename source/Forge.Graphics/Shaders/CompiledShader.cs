@@ -19,9 +19,14 @@ public class CompiledShader : GraphicsResourceBase
 
 	public bool UniformExists(string name) => uniformByName.ContainsKey(name);
 
-	public void Bind()
+	public void Bind(params object[] source)
 	{
 		GL.UseProgram(ProgramId);
+
+		foreach(var obj in source)
+		{
+			BindUniform(obj);
+		}
 	}
 
 	public void BindUniform(object source)

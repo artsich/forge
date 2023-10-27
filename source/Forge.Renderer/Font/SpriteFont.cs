@@ -8,7 +8,7 @@ public class SpriteFont : GraphicsResourceBase
 
 	public Texture2d Atlas { get; }
 
-	public IReadOnlyDictionary<char, Glyph> Chars { get; init; }
+	public IReadOnlyDictionary<char, Glyph> Glyphs { get; init; }
 
 	public float Size { get; init; }
 
@@ -21,7 +21,7 @@ public class SpriteFont : GraphicsResourceBase
 	{
 		Size = size;
 		Atlas = atlas;
-		Chars = chars;
+		Glyphs = chars;
 		this.kerningPairs = kerningPairs;
 	}
 

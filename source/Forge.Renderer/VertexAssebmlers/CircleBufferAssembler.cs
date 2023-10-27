@@ -1,10 +1,11 @@
 ﻿using Forge.Renderer.Components;
 using Forge.Renderer.Utils;
+using Forge.Renderer.Vertices;
 using Silk.NET.Maths;
 
 namespace Forge.Renderer.VertexAssebmlers;
 
-public class CircleBufferAssembler : IGeometryBufferAssembler<CircleVertexData, CircleRenderComponent>
+public class CircleBufferAssembler : IGeometryBufferAssembler<CircleVertex, CircleRenderComponent>
 {
 	private readonly int segmentsCount;
 
@@ -25,12 +26,12 @@ public class CircleBufferAssembler : IGeometryBufferAssembler<CircleVertexData, 
 		return IndicesGenerator.GenerateCircleIndices(count, segmentsCount);
 	}
 
-	public void Assemble(Span<CircleVertexData> vertices, ref CircleRenderComponent circle)
+	public void Assemble(Span<CircleVertex> vertices, ref CircleRenderComponent circle)
 	{
 		if (vertices.Length < VerticesRequired)
 			throw new ArgumentException($"Span must have at least {VerticesRequired} elements", nameof(vertices));
 
-		vertices[0] = new CircleVertexData(
+		vertices[0] = new CircleVertex(
 			new Vector3D<float>(circle.Position.X, circle.Position.Y, 1.0f),
 			new Vector2D<float>(0.5f),
 			circle.Color,
@@ -53,7 +54,7 @@ public class CircleBufferAssembler : IGeometryBufferAssembler<CircleVertexData, 
 				0.5f + 0.5f * cos_theta,
 				0.5f + 0.5f * sin_theta);
 
-			vertices[i] = new CircleVertexData(position, texCoord, circle.Color, circle.Fade);
+			vertices[i] = new CircleVertex(position, texCoord, circle.Color, circle.Fade);
 		}
 	}
 }

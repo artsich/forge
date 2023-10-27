@@ -4,6 +4,9 @@ namespace Forge.Renderer.Font;
 
 public sealed class MsdfAtlasGen
 {
+	private const int DistanceRange = 10;
+	private const string YOrigin = "bottom";
+
 	private readonly string toolPath;
 
 	public MsdfAtlasGen()
@@ -27,7 +30,7 @@ public sealed class MsdfAtlasGen
 
 		if (!(File.Exists(atlasImagePath) && File.Exists(atlasMetaPath)))
 		{
-			string args = $"""-type sdf -font "{fontPath}" -imageout "{atlasImagePath}" -json "{atlasMetaPath}" -size {size} -yorigin bottom -pxrange 10""";
+			string args = $"""-type sdf -font "{fontPath}" -imageout "{atlasImagePath}" -json "{atlasMetaPath}" -size {size} -yorigin {YOrigin} -pxrange {DistanceRange}""";
 			Process.Start(toolPath, args).WaitForExit();
 		}
 
