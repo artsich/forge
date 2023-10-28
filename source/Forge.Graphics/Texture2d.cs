@@ -29,7 +29,7 @@ public sealed class Texture2d : GraphicsResourceBase
 		: base(GraphicsDevice.Current)
 	{
 		Size = new Size((int)width, (int)height);
-		Handle = GL.CreateTexture(GLEnum.Texture2D);
+		Handle = GL.GenTexture();
 		GL.BindTexture(GLEnum.Texture2D, Handle);
 
 		if (!data.IsEmpty)
@@ -103,7 +103,8 @@ public sealed class Texture2d : GraphicsResourceBase
 
 	public void Bind(int slot = 0)
 	{
-		GL.BindTextureUnit((uint)slot, Handle);
+		GL.ActiveTexture(TextureUnit.Texture0 + slot);
+		GL.BindTexture(TextureTarget.Texture2D, Handle);
 	}
 
 	protected override void OnDestroy()
