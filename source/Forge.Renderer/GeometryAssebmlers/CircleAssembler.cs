@@ -5,7 +5,7 @@ using Silk.NET.Maths;
 
 namespace Forge.Renderer.VertexAssebmlers;
 
-public class CircleBufferAssembler : IGeometryBufferAssembler<CircleVertex, CircleRenderComponent>
+public class CircleAssembler : IGeometryAssembler<CircleVertex, CircleRenderComponent>
 {
 	private readonly int segmentsCount;
 
@@ -13,7 +13,7 @@ public class CircleBufferAssembler : IGeometryBufferAssembler<CircleVertex, Circ
 
 	public int IndicesRequired { get; }
 
-	public CircleBufferAssembler(int segmentsCount)
+	public CircleAssembler(int segmentsCount)
 	{
 		this.segmentsCount = segmentsCount;
 		VerticesRequired = segmentsCount + 1;

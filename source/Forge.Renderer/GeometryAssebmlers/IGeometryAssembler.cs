@@ -1,6 +1,6 @@
 ﻿namespace Forge.Renderer.VertexAssebmlers;
 
-public interface IGeometryBufferAssembler<TVertex, TRenderComponent>
+public interface IGeometryAssembler<TVertex, TRenderComponent>
 	where TVertex : unmanaged
 {
 	int VerticesRequired { get; }

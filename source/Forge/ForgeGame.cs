@@ -35,8 +35,6 @@ public class CircleDrawer
 		float fade = 0.04f;
 		float radius = 10.0f;
 
-		var batch = renderer.StartDrawCircles();
-
 		float deltaX = radius * 2;
 		float deltaY = radius * 2;
 
@@ -49,7 +47,7 @@ public class CircleDrawer
 			{
 				Vector2D<float> position = new(startX + i * deltaX, startY + j * deltaY);
 				var circle = new CircleRenderComponent(color, position, radius, fade);
-				batch.Add(ref circle);
+				renderer.DrawCircle(circle);
 			}
 		}
 
@@ -141,7 +139,8 @@ void main()
 }
 ";
 
-	private readonly CameraData camera = new(Matrix4X4.CreateOrthographic(Width, Height, 0.1f, 100.0f));
+	private readonly CameraData gameCamera = new(Matrix4X4.CreateOrthographic(Width, Height, 0.1f, 100.0f));
+	private readonly CameraData uiCamera = new(Matrix4X4.CreateOrthographic(Width, Height, 0.1f, 100.0f));
 
 	private Renderer2D? renderer;
 
@@ -181,7 +180,7 @@ void main()
 	protected override void LoadGame()
 	{
 		Gl = GraphicsDevice!.gl;
-		camera2D = new Camera2DController(camera, PrimaryMouse!)
+		camera2D = new Camera2DController(gameCamera, PrimaryMouse!)
 		{
 			Speed = 2000f
 		};
@@ -264,14 +263,13 @@ layout(location = 2) in vec4 v_color;
 out vec2 TexCoords;
 out vec4 Color;
 
-uniform mat4 cameraProj;
-uniform mat4 cameraView;
+uniform mat4 cameraViewProj;
 
 void main()
 {
 	TexCoords = v_uv;
 	Color = v_color;
-	gl_Position = cameraProj * cameraView * vec4(v_pos, 0.0, 1.0);
+	gl_Position = cameraViewProj * vec4(v_pos, 0.0, 1.0);
 }
 
 ", ShaderType.VertexShader),
@@ -317,8 +315,6 @@ void main()
 		Shader.Bind();
 		texture.Bind();
 
-		var batch = renderer!.StartDrawCircles();
-
 		foreach (var obj in verletObjects)
 		{
 			var renderInfo = new CircleRenderComponent()
@@ -328,10 +324,10 @@ void main()
 				Radius = obj.Radius,
 			};
 
-			batch.Add(ref renderInfo);
+			renderer!.DrawCircle(renderInfo);
 		}
 
-		renderer.FlushAll();
+		renderer!.FlushAll();
 
 		timer += (float)delta;
 		if (timer > 1)
@@ -340,13 +336,13 @@ void main()
 			fps = 1.0f / (float)delta;
 		}
 
-		fontRenderer.Push(new TextRenderComponent(
+		fontRenderer.DrawText(new TextRenderComponent(
 			$"FPS: {fps:0.000}, delta: {delta}",
 			new Vector2D<float>(-Width/2f + 50, Height/2f - 50),
 			32f,
 			new Vector4D<float>(1f, 0f, 0f, 1f)));
 
-		fontRenderer.Flush(camera);
+		fontRenderer.Flush(uiCamera);
 
 		framebuffer.Unbind();
 

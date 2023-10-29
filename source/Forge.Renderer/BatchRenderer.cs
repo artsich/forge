@@ -19,7 +19,10 @@ public readonly struct BatchRendererDescription
 public class BatchRenderer<TVertex, TRenderComponent> : GraphicsResourceBase
 	where TVertex : unmanaged
 {
-	private readonly Batch<TVertex, TRenderComponent> renderBatch;
+	private int verticesUsed;
+	private int indicesUsed;
+	private readonly IGeometryAssembler<TVertex, TRenderComponent> vertexAssembler;
+	private readonly TVertex[] vertices;
 
 	private VertexArrayBuffer? Vao;
 	private Buffer<TVertex>? Vbo;
@@ -27,15 +30,12 @@ public class BatchRenderer<TVertex, TRenderComponent> : GraphicsResourceBase
 
 	public BatchRenderer(
 		IVertexLayout vertexLayout,
-		IGeometryBufferAssembler<TVertex, TRenderComponent> geometryAssembler,
+		IGeometryAssembler<TVertex, TRenderComponent> geometryAssembler,
 		BatchRendererDescription description)
 		: base(GraphicsDevice.Current)
 	{
-		renderBatch = new Batch<TVertex, TRenderComponent>(
-			geometryAssembler,
-			description.EntitiesCount);
-
-		renderBatch.OnFull += Flush;
+		vertexAssembler = geometryAssembler;
+		vertices = new TVertex[description.EntitiesCount * geometryAssembler.VerticesRequired];
 
 		InitBuffers(vertexLayout,
 			description.EntitiesCount * geometryAssembler.VerticesRequired,
@@ -56,14 +56,21 @@ public class BatchRenderer<TVertex, TRenderComponent> : GraphicsResourceBase
 		vertexLayout.Enable(Gd.gl);
 	}
 
-	public Batch<TVertex, TRenderComponent> GetBatch()
+	public void Push(ref TRenderComponent renderComponent)
 	{
-		return renderBatch;
+		if (verticesUsed + vertexAssembler.VerticesRequired == vertices.Length)
+		{
+			Flush();
+		}
+
+		vertexAssembler.Assemble(GetVerticesToPack(), ref renderComponent);
+		verticesUsed += vertexAssembler.VerticesRequired;
+		indicesUsed += vertexAssembler.IndicesRequired;
 	}
 
 	public unsafe void Flush()
 	{
-		var vertices = renderBatch.GetUsedVertices();
+		var vertices = GetUsedVertices();
 
 		if (vertices.Length > 0)
 		{
@@ -71,17 +78,31 @@ public class BatchRenderer<TVertex, TRenderComponent> : GraphicsResourceBase
 			Vbo!.SetData(vertices);
 			Vao!.Bind();
 
-			Gd.gl.DrawElements(PrimitiveType.Triangles, renderBatch.IndicesUsed, DrawElementsType.UnsignedInt, null);
+			Gd.gl.DrawElements(PrimitiveType.Triangles, (uint)indicesUsed, DrawElementsType.UnsignedInt, null);
 
-			renderBatch.Reset();
+			Reset();
 		}
 	}
 
 	protected override void OnDestroy()
 	{
-		renderBatch.OnFull -= Flush;
 		Ebo?.Dispose();
 		Vbo?.Dispose();
 		Vao?.Dispose();
+	}
+
+	private Span<TVertex> GetVerticesToPack()
+	{
+		var start = verticesUsed;
+		var end = start + vertexAssembler.VerticesRequired;
+		return vertices.AsSpan()[start..end];
+	}
+
+	private Span<TVertex> GetUsedVertices() => vertices.AsSpan()[0..verticesUsed];
+
+	private void Reset()
+	{
+		verticesUsed = 0;
+		indicesUsed = 0;
 	}
 }

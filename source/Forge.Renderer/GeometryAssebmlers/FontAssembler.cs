@@ -4,7 +4,7 @@ using Forge.Renderer.Vertices;
 
 namespace Forge.Renderer.VertexAssebmlers;
 
-public class TextAssembler : IGeometryBufferAssembler<GlyphVertex, CharacterRenderComponent>
+public class CharacterAssembler : IGeometryAssembler<GlyphVertex, CharacterRenderComponent>
 {
 	public int VerticesRequired => 4;
 

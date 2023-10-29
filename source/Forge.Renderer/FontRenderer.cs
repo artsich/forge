@@ -9,25 +9,37 @@ using Silk.NET.OpenGL;
 
 namespace Forge.Renderer;
 
-public class FontRenderer : BatchRenderer<GlyphVertex, CharacterRenderComponent>
+public class FontRenderer : GraphicsResourceBase
 {
 	private readonly SpriteFont font;
 	private readonly CompiledShader shader;
+	private readonly BatchRenderer<GlyphVertex, CharacterRenderComponent> batchRenderer;
 
 	public FontRenderer(SpriteFont font, CompiledShader shader)
-		: base(
-			new FontQuadLayout(),
-			new TextAssembler(),
-			new BatchRendererDescription(1000))
+		: this(
+			font,
+			shader,
+			new BatchRenderer<GlyphVertex, CharacterRenderComponent>(
+				new FontQuadLayout(),
+				new CharacterAssembler(),
+				new BatchRendererDescription(5000))
+			)
+	{
+	}
+
+	private FontRenderer(
+		SpriteFont font,
+		CompiledShader shader,
+		BatchRenderer<GlyphVertex, CharacterRenderComponent> batchRenderer)
+		: base(GraphicsDevice.Current)
 	{
 		this.font = font;
 		this.shader = shader;
+		this.batchRenderer = batchRenderer;
 	}
 
-	public void Push(TextRenderComponent text)
+	public void DrawText(TextRenderComponent text)
 	{
-		var batch = GetBatch();
-
 		var position = text.Position;
 		var scaleFactor = text.Scale / font.Size;
 
@@ -48,7 +60,8 @@ public class FontRenderer : BatchRenderer<GlyphVertex, CharacterRenderComponent>
 					UV = glyph.UV,
 					Color = text.Color
 				};
-				batch.Add(ref characterComponent);
+
+				batchRenderer.Push(ref characterComponent);
 
 				position.X += glyph.XAdvance * scaleFactor;
 				lastChar = character;
@@ -58,16 +71,19 @@ public class FontRenderer : BatchRenderer<GlyphVertex, CharacterRenderComponent>
 
 	public void Flush(CameraData camera)
 	{
-		shader.Bind();
-		shader["cameraProj"].SetValue(camera.Projection);
-		shader["cameraView"].SetValue(camera.View);
+		shader.Bind(camera);
 		font.Atlas.Bind(0);
 
 		Gd.gl.Enable(GLEnum.Blend);
 		Gd.gl.BlendFunc(GLEnum.SrcAlpha, GLEnum.OneMinusSrcAlpha);
 
-		Flush();
+		batchRenderer.Flush();
 
 		Gd.gl.Disable(GLEnum.Blend);
+	}
+
+	protected override void OnDestroy()
+	{
+		batchRenderer?.Dispose();
 	}
 }

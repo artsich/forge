@@ -1,12 +1,8 @@
 ﻿using Forge.Graphics;
-using Forge.Graphics.Shaders;
 using Forge.Renderer.Components;
-using Forge.Renderer.Font;
 using Forge.Renderer.Layouts;
 using Forge.Renderer.VertexAssebmlers;
 using Forge.Renderer.Vertices;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
 namespace Forge.Renderer;
 
@@ -18,20 +14,15 @@ public class Renderer2D : IDisposable
 	{
 		circleRenderer = new BatchRenderer<CircleVertex, CircleRenderComponent>(
 			new CircleVertexLayout(),
-			new CircleBufferAssembler(segmentsCount: 12),
+			new CircleAssembler(segmentsCount: 12),
 			new BatchRendererDescription(5000));
 	}
 
 	// todo: can be moved to extensions?
 	// todo: looks not good solution, think about refactoring!
-	public void AddCircle(CircleRenderComponent circle)
+	public void DrawCircle(CircleRenderComponent circle)
 	{
-		circleRenderer.GetBatch().Add(ref circle);
-	}
-
-	public Batch<CircleVertex, CircleRenderComponent> StartDrawCircles()
-	{
-		return circleRenderer.GetBatch();
+		circleRenderer.Push(ref circle);
 	}
 
 	public void FlushAll()
