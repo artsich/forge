@@ -16,31 +16,26 @@ public readonly struct BatchRendererDescription
 	}
 }
 
-public class BatchRenderer<TVertex, TRenderComponent> : IDisposable
+public class BatchRenderer<TVertex, TRenderComponent> : GraphicsResourceBase
 	where TVertex : unmanaged
 {
-	private readonly GraphicsDevice gd;
 	private readonly Batch<TVertex, TRenderComponent> renderBatch;
 
 	private VertexArrayBuffer? Vao;
 	private Buffer<TVertex>? Vbo;
 	private Buffer<uint>? Ebo;
 
-	private bool disposed;
-
 	public BatchRenderer(
-		GraphicsDevice gd,
 		IVertexLayout vertexLayout,
 		IGeometryBufferAssembler<TVertex, TRenderComponent> geometryAssembler,
 		BatchRendererDescription description)
+		: base(GraphicsDevice.Current)
 	{
 		renderBatch = new Batch<TVertex, TRenderComponent>(
 			geometryAssembler,
 			description.EntitiesCount);
 
 		renderBatch.OnFull += Flush;
-
-		this.gd = gd;
 
 		InitBuffers(vertexLayout,
 			description.EntitiesCount * geometryAssembler.VerticesRequired,
@@ -49,16 +44,16 @@ public class BatchRenderer<TVertex, TRenderComponent> : IDisposable
 
 	private void InitBuffers(IVertexLayout vertexLayout, int maxVerticexPerBatch, uint[] indices)
 	{
-		Vao = new VertexArrayBuffer(gd);
+		Vao = new VertexArrayBuffer(Gd);
 		Vao.Bind();
 
-		Vbo = Graphics.Buffers.Buffer.Vertex.New<TVertex>(gd, maxVerticexPerBatch, BufferUsageARB.DynamicDraw);
+		Vbo = Graphics.Buffers.Buffer.Vertex.New<TVertex>(Gd, maxVerticexPerBatch, BufferUsageARB.DynamicDraw);
 		Vbo.Bind();
 
-		Ebo = Graphics.Buffers.Buffer.Index.New(gd, indices);
+		Ebo = Graphics.Buffers.Buffer.Index.New(Gd, indices);
 		Ebo.Bind();
 
-		vertexLayout.Enable(gd.gl);
+		vertexLayout.Enable(Gd.gl);
 	}
 
 	public Batch<TVertex, TRenderComponent> GetBatch()
@@ -76,22 +71,17 @@ public class BatchRenderer<TVertex, TRenderComponent> : IDisposable
 			Vbo!.SetData(vertices);
 			Vao!.Bind();
 
-			gd.gl.DrawElements(PrimitiveType.Triangles, renderBatch.IndicesUsed, DrawElementsType.UnsignedInt, null);
+			Gd.gl.DrawElements(PrimitiveType.Triangles, renderBatch.IndicesUsed, DrawElementsType.UnsignedInt, null);
 
 			renderBatch.Reset();
 		}
 	}
 
-	public void Dispose()
+	protected override void OnDestroy()
 	{
-		if (!disposed)
-		{
-			renderBatch.OnFull -= Flush;
-			Ebo?.Dispose();
-			Vbo?.Dispose();
-			Vao?.Dispose();
-
-			disposed = true;
-		}
+		renderBatch.OnFull -= Flush;
+		Ebo?.Dispose();
+		Vbo?.Dispose();
+		Vao?.Dispose();
 	}
 }

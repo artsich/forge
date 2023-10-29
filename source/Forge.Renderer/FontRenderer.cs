@@ -5,6 +5,7 @@ using Forge.Renderer.Font;
 using Forge.Renderer.Layouts;
 using Forge.Renderer.VertexAssebmlers;
 using Forge.Renderer.Vertices;
+using Silk.NET.OpenGL;
 
 namespace Forge.Renderer;
 
@@ -15,7 +16,6 @@ public class FontRenderer : BatchRenderer<GlyphVertex, CharacterRenderComponent>
 
 	public FontRenderer(SpriteFont font, CompiledShader shader)
 		: base(
-			GraphicsDevice.Current,
 			new FontQuadLayout(),
 			new TextAssembler(),
 			new BatchRendererDescription(1000))
@@ -63,6 +63,11 @@ public class FontRenderer : BatchRenderer<GlyphVertex, CharacterRenderComponent>
 		shader["cameraView"].SetValue(camera.View);
 		font.Atlas.Bind(0);
 
+		Gd.gl.Enable(GLEnum.Blend);
+		Gd.gl.BlendFunc(GLEnum.SrcAlpha, GLEnum.OneMinusSrcAlpha);
+
 		Flush();
+
+		Gd.gl.Disable(GLEnum.Blend);
 	}
 }

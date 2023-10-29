@@ -174,6 +174,10 @@ void main()
 
 	private readonly Random r = new();
 
+	private FontRenderer fontRenderer;
+	private float timer;
+	private float fps;
+
 	protected override void LoadGame()
 	{
 		Gl = GraphicsDevice!.gl;
@@ -305,10 +309,6 @@ void main()
 			fontShader);
 	}
 
-	FontRenderer fontRenderer;
-
-	float timer;
-	float fps;
 	protected override void OnRender(double delta)
 	{
 		framebuffer.Bind();
@@ -340,11 +340,6 @@ void main()
 			fps = 1.0f / (float)delta;
 		}
 
-		Gl.Enable(GLEnum.Blend);
-		Gl.BlendFunc(GLEnum.SrcAlpha, GLEnum.OneMinusSrcAlpha);
-
-		timer += (float)delta;
-
 		fontRenderer.Push(new TextRenderComponent(
 			$"FPS: {fps:0.000}, delta: {delta}",
 			new Vector2D<float>(-Width/2f + 50, Height/2f - 50),
@@ -353,7 +348,6 @@ void main()
 
 		fontRenderer.Flush(camera);
 
-		Gl.Disable(GLEnum.Blend);
 		framebuffer.Unbind();
 
 		defaultFb.Bind();

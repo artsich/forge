@@ -17,7 +17,6 @@ public class Renderer2D : IDisposable
 	public Renderer2D(GraphicsDevice graphicsDevice)
 	{
 		circleRenderer = new BatchRenderer<CircleVertex, CircleRenderComponent>(
-			graphicsDevice,
 			new CircleVertexLayout(),
 			new CircleBufferAssembler(segmentsCount: 12),
 			new BatchRendererDescription(5000));
