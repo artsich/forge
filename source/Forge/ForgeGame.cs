@@ -57,7 +57,7 @@ public class CircleDrawer
 
 public unsafe class ForgeGame : Engine
 {
-	public const int Width = 1920, Height = 1080;
+	public const int Width = 320, Height = 180;
 	private static GL Gl;
 
 	private static CompiledShader Shader;
@@ -336,9 +336,9 @@ void main()
 		}
 
 		fontRenderer.DrawText(new TextRenderComponent(
-			$"FPS: {fps:0.000}, delta: {delta}",
-			new Vector2D<float>(-Width/2f + 50, Height/2f - 50),
-			32f,
+			$"FPS: {fps:0.000}",
+			new Vector2D<float>(-Width/2f + 20, Height/2f - 20),
+			11f,
 			new Vector4D<float>(1f, 0f, 0f, 1f)));
 
 		fontRenderer.Flush(uiCamera);

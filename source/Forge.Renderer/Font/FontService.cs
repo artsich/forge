@@ -1,8 +1,5 @@
 ﻿using Silk.NET.Maths;
 using System.Data;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 
 namespace Forge.Renderer.Font;
 
@@ -51,19 +48,29 @@ public class FontService : IFontService
 
 	private byte[] LoadPixels()
 	{
-		byte[]? textureData;
-		using (Bitmap bitmap = new Bitmap(texturePath))
+		byte[] textureData;
+
+		using (Image<Rgba32> image = Image.Load<Rgba32>(texturePath))
 		{
-			bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+			// Flip the image vertically
+			image.Mutate(ctx => ctx.Flip(FlipMode.Vertical));
 
-			BitmapData bitmapData = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height),
-				ImageLockMode.ReadOnly, bitmap.PixelFormat);
+			// Convert image to byte array
+			textureData = new byte[image.Width * image.Height * 4]; // Assuming RGBA format
 
-			int bytes = Math.Abs(bitmapData.Stride) * bitmap.Height;
-			textureData = new byte[bytes];
-			Marshal.Copy(bitmapData.Scan0, textureData, 0, bytes);
+			for (int y = 0; y < image.Height; y++)
+			{
+				for (int x = 0; x < image.Width; x++)
+				{
+					Rgba32 pixel = image[x, y];
+					int index = y * image.Width * 4 + x * 4;
 
-			bitmap.UnlockBits(bitmapData);
+					textureData[index] = pixel.R;
+					textureData[index + 1] = pixel.G;
+					textureData[index + 2] = pixel.B;
+					textureData[index + 3] = pixel.A;
+				}
+			}
 		}
 
 		return textureData;
