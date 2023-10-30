@@ -300,11 +300,10 @@ void main()
 ", ShaderType.FragmentShader))
 			.Compile() ?? throw new InvalidOperationException("Shader compilation error!");
 
-		fontRenderer = new FontRenderer(
-			new MsdfAtlasGen()
+		var fontSprite = new MsdfAtlasGen()
 				.GenerateAtlas("C:\\Windows\\Fonts\\consola.ttf")
-				.GetSpriteFont(),
-			fontShader);
+				.GetSpriteFont();
+		fontRenderer = new FontRenderer(fontSprite, fontShader);
 	}
 
 	protected override void OnRender(double delta)

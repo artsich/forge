@@ -119,11 +119,11 @@ public sealed class FrameBuffer : GraphicsResourceBase
 			GL.DrawBuffer(DrawBufferMode.None);
 		}
 
-		Unbind();
-
 		if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != GLEnum.FramebufferComplete)
 		{
 			throw new Exception("Framebuffer is not complete!");
 		}
+
+		Unbind();
 	}
 }
