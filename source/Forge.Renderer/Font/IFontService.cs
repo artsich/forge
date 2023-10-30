@@ -2,5 +2,9 @@
 
 public interface IFontService
 {
-	SpriteFont GetSpriteFont();
+	SpriteFont CreateFont(string path);
+
+	bool FontExists(string name);
+
+	SpriteFont GetFont(string name);
 }

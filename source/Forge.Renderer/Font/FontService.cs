@@ -5,18 +5,59 @@ namespace Forge.Renderer.Font;
 
 public class FontService : IFontService
 {
-	private readonly string texturePath;
-	private readonly string metaInfoPath;
+	private readonly string pathToFontFolder;
 
-	public FontService(string texturePath, string metaInfoPath)
+	public FontService(string pathToFontFolder)
 	{
-		this.texturePath = texturePath;
-		this.metaInfoPath = metaInfoPath;
+		this.pathToFontFolder = pathToFontFolder;
 	}
 
-	public SpriteFont GetSpriteFont()
+	public SpriteFont CreateFont(string fontPath)
 	{
-		Root meta = LoadMeta();
+		if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+		{
+			var name = new MsdfAtlasGen().GenerateAtlas(fontPath, pathToFontFolder);
+			return GetFont(name);
+		}
+
+		throw new NotImplementedException();
+	}
+
+	public bool FontExists(string name)
+	{
+		var (meta, texture) = GetFontPath(name);
+
+		if (!Path.Exists(meta) || !Path.Exists(texture))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	public SpriteFont GetFont(string name)
+	{
+		var (meta, texture) = GetFontPath(name);
+
+		if (!FontExists(name))
+		{
+			throw new DataException($"Font {name} does not exist");
+		}
+
+		return GetSpriteFont(meta, texture);
+	}
+
+	private (string meta, string texture) GetFontPath(string name)
+	{
+		return (
+			Path.Combine(pathToFontFolder, name + "_Atlas.json"),
+			Path.Combine(pathToFontFolder, name + "_Atlas.png")
+		);
+	}
+
+	private static SpriteFont GetSpriteFont(string metaPath, string texturePath)
+	{
+		Root meta = LoadMeta(metaPath);
 
 		var glyphs = new Dictionary<char, Glyph>();
 
@@ -36,7 +77,7 @@ public class FontService : IFontService
 			meta.Atlas.Size,
 			new Graphics.Texture2d(
 				(uint)meta.Atlas.Width, (uint)meta.Atlas.Height,
-				LoadPixels(),
+				LoadPixels(texturePath),
 				true)
 			{
 				Filter = Graphics.MinMagFilter.Linear,
@@ -46,17 +87,15 @@ public class FontService : IFontService
 			kerningPairs);
 	}
 
-	private byte[] LoadPixels()
+	private static byte[] LoadPixels(string texturePath)
 	{
 		byte[] textureData;
 
 		using (Image<Rgba32> image = Image.Load<Rgba32>(texturePath))
 		{
-			// Flip the image vertically
 			image.Mutate(ctx => ctx.Flip(FlipMode.Vertical));
 
-			// Convert image to byte array
-			textureData = new byte[image.Width * image.Height * 4]; // Assuming RGBA format
+			textureData = new byte[image.Width * image.Height * 4];
 
 			for (int y = 0; y < image.Height; y++)
 			{
@@ -102,7 +141,7 @@ public class FontService : IFontService
 		};
 	}
 
-	private Root LoadMeta()
+	private static Root LoadMeta(string metaInfoPath)
 	{
 		var jsonData = File.ReadAllText(metaInfoPath);
 		var root = System.Text.Json.JsonSerializer.Deserialize<Root>(jsonData, new System.Text.Json.JsonSerializerOptions()

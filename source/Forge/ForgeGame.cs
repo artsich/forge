@@ -13,6 +13,22 @@ using Shader = Forge.Graphics.Shaders.Shader;
 
 namespace Forge;
 
+public class Assets
+{
+	private readonly IFontService fontService;
+	public string patoToAssets = ".\\Assets";
+
+	public Assets(IFontService fontService)
+	{
+		this.fontService = fontService;
+	}
+
+	public SpriteFont LoadFont(string name)
+	{
+		return fontService.GetFont(name);
+	}
+}
+
 public class CircleDrawer
 {
 	private const int CircleCount = 5000;
@@ -177,12 +193,14 @@ void main()
 	private float timer;
 	private float fps;
 
+	private readonly Assets assets = new(new FontService("Assets//Font"));
+
 	protected override void LoadGame()
 	{
 		Gl = GraphicsDevice!.gl;
 		camera2D = new Camera2DController(gameCamera, PrimaryMouse!)
 		{
-			Speed = 2000f
+			Speed = 1000f
 		};
 
 		renderer = new Renderer2D(GraphicsDevice);
@@ -300,10 +318,10 @@ void main()
 ", ShaderType.FragmentShader))
 			.Compile() ?? throw new InvalidOperationException("Shader compilation error!");
 
-		var fontSprite = new MsdfAtlasGen()
-				.GenerateAtlas("C:\\Windows\\Fonts\\consola.ttf")
-				.GetSpriteFont();
-		fontRenderer = new FontRenderer(fontSprite, fontShader);
+		//var fontSprite = new MsdfAtlasGen()
+		//		.GenerateAtlas("C:\\Windows\\Fonts\\consola.ttf")
+		//		.GetSpriteFont();
+		fontRenderer = new FontRenderer(assets.LoadFont("consola"), fontShader);
 	}
 
 	protected override void OnRender(double delta)
@@ -337,7 +355,7 @@ void main()
 
 		fontRenderer.DrawText(new TextRenderComponent(
 			$"FPS: {fps:0.000}",
-			new Vector2D<float>(-Width/2f + 20, Height/2f - 20),
+			new Vector2D<float>(-Width / 2f + 20, Height / 2f - 20),
 			11f,
 			new Vector4D<float>(1f, 0f, 0f, 1f)));
 

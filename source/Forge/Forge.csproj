@@ -17,4 +17,8 @@
     <ProjectReference Include="..\Forge.Renderer\Forge.Renderer.csproj" />
   </ItemGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="Xcopy /E /I /Y $(SolutionDir)\Assets $(TargetDir)\Assets" />
+  </Target>
+
 </Project>
