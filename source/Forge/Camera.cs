@@ -19,6 +19,8 @@ public class Camera2DController
 
 	public float ZoomSpeed { get; init; } = 0.1f;
 
+	public float CurrentZoom => currentZoom;
+
 	public Camera2DController(CameraData cameraData, IMouse mouse)
 	{
 		CameraData = cameraData;

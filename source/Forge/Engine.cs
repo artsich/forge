@@ -7,21 +7,30 @@ using System.Collections.Concurrent;
 
 namespace Forge;
 
-public abstract class Engine
+public class Engine
 {
-	protected readonly IWindow _window;
+	public static IWindow Window { get; private set; }
 
-	protected GraphicsDevice? GraphicsDevice;
+	public static GraphicsDevice? GraphicsDevice { get; private set; }
+
+	public static IKeyboard PrimaryKeyboard;
+
+	public static IMouse PrimaryMouse;
+
+	public static Engine Instance { get; private set; }
 
 	private readonly ConcurrentQueue<Action> _renderTasks = new();
+	private readonly ILayer[] layers;
 
-	protected IKeyboard? PrimaryKeyboard;
-	protected IMouse? PrimaryMouse;
+	private double totalUpdateTime = 0.0;
+	private double totalRenderTime = 0.0;
 
-	private double totalTime = 0.0;
-
-	public Engine()
+	public Engine(params ILayer[] layers)
 	{
+		Instance = this;
+
+		this.layers = layers;
+
 		var options = WindowOptions.Default;
 		options.API = new GraphicsAPI()
 		{
@@ -36,66 +45,71 @@ public abstract class Engine
 		options.Title = "Forge";
 		options.VSync = false;
 
-		_window = Window.Create(options);
+		Window = Silk.NET.Windowing.Window.Create(options);
 
-		_window.Load += OnLoad;
-		_window.Render += (dt) =>
+		Window.Load += OnLoad;
+		Window.Render += (dt) =>
 		{
+			totalRenderTime += dt;
 			while (_renderTasks.TryDequeue(out var task))
 			{
 				task();
 			}
 
-			OnRender(dt);
+			foreach (var layer in layers)
+			{
+				layer.Render(new GameTime((float)totalRenderTime, (float)dt));
+			}
 		};
 
-		_window.Update += (dt) =>
+		Window.Update += (dt) =>
 		{
-			totalTime += dt;
-			OnUpdate(new GameTime((float)totalTime, (float)dt));
+			totalUpdateTime += dt;
+			foreach (var layer in layers)
+			{
+				layer.Update(new GameTime((float)totalUpdateTime, (float)dt));
+			}
 		};
 
-		_window.Closing += OnClose;
-		_window.Resize += OnResize;
+		Window.Closing += () =>
+		{
+			foreach (var layer in layers)
+			{
+				layer.Unload();
+			}
+		};
 	}
-
-	protected abstract void OnClose();
-
-	protected abstract void OnResize(Vector2D<int> obj);
 
 	private void OnLoad()
 	{
-		IInputContext input = _window.CreateInput();
+		IInputContext input = Window.CreateInput();
 		PrimaryKeyboard = input.Keyboards[0];
 		PrimaryMouse = input.Mice[0];
 
 		Graphics.Graphics.ForceHardwareAcceleratedRendering();
-		GraphicsDevice = GraphicsDevice.InitOpengl(_window);
+		GraphicsDevice = GraphicsDevice.InitOpengl(Window);
 
 		string version = GraphicsDevice.gl.GetStringS(StringName.Version);
 		Console.WriteLine($"OpenGL Version: {version}");
 
-		LoadGame();
+		foreach (var layer in layers)
+		{
+			layer.Load();
+		}
 	}
 
 	public void Run()
 	{
-		_window.Run();
+		Window.Run();
 	}
 
-	public void AddRenderTask(Action task)
+	public static void AddRenderTask(Action task)
 	{
-		_renderTasks.Enqueue(task);
+		Instance._renderTasks.Enqueue(task);
 	}
 
 	public void Stop()
 	{
-		_window.Close();
+		Window.Close();
 	}
-
-	protected abstract void LoadGame();
-
-	protected abstract void OnRender(double delta);
-
-	protected abstract void OnUpdate(GameTime time);
 }

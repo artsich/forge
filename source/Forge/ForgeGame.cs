@@ -5,97 +5,37 @@ using Forge.Physics;
 using Forge.Renderer;
 using Forge.Renderer.Components;
 using Forge.Renderer.Font;
+using Forge.Renderer.Ui;
+using Forge.Shaders;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
+using Silk.NET.Windowing;
 using System.Drawing;
 using Shader = Forge.Graphics.Shaders.Shader;
 
 namespace Forge;
 
-public unsafe class ForgeGame : Engine
+public interface ILayer
+{
+	void Load();
+
+	void Unload();
+
+	void Update(GameTime time);
+
+	void Render(GameTime time);
+}
+
+public unsafe class ForgeGame : ILayer
 {
 	public const int Width = 640, Height = 360;
+
+	private IWindow window;
 	private static GL Gl;
 
 	private static CompiledShader Shader;
 	private static CompiledShader PostProcessingShader;
-
-	private static readonly string VertexShaderSource = @"
-        #version 330 core
-        layout (location = 0) in vec3 vPos;
-		layout (location = 1) in vec4 vColor;
-		layout (location = 2) in vec2 vTexCoord;
-		layout (location = 3) in float vFade;
-
-		uniform mat4 cameraViewProj;
-		uniform mat4 model = mat4(1.0);
-
-		out vec2 fragTexCoord;
-		out float fragFade;
-		out vec4 fragColor;
-
-        void main()
-        {
-			fragTexCoord = vTexCoord;
-			fragFade = vFade;
-			fragColor = vColor;
-
-			vec4 pos = model * vec4(vPos, 1.0);
-			gl_Position = cameraViewProj * pos;
-        }
-        ";
-
-	private static readonly string FragmentShaderSource = @"
-#version 330 core
-
-out vec4 FragColor;
-
-in vec2 fragTexCoord;
-in float fragFade;
-in vec4 fragColor;
-
-uniform float timeTotal;
-
-uniform sampler2D texture1;
-
-vec3 lightColor = vec3(1.0, 0.0, 1.0);
-
-void main()
-{
-	vec3 texColor = texture(texture1, fragTexCoord).xyz;
-	vec3 c = mix(fragColor.rgb, lightColor, sin(timeTotal)) * texColor;
-	FragColor = vec4(c, 1.0);
-}
-";
-
-	private static readonly string PostProcesssingVertexShader = @"
-#version 330 core
-layout (location = 0) in vec2 aPos;
-layout (location = 1) in vec2 aTexCoords;
-
-out vec2 TexCoords;
-
-void main()
-{
-    gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0); 
-    TexCoords = aTexCoords;
-}
-";
-
-	private static readonly string PostProcesssingFragmentShader = @"
-#version 330 core
-out vec4 FragColor;
-  
-in vec2 TexCoords;
-
-uniform sampler2D screenTexture;
-
-void main()
-{ 
-    FragColor = texture(screenTexture, TexCoords);
-}
-";
 
 	private readonly CameraData gameCamera = new(Matrix4X4.CreateOrthographic(Width, Height, 0.1f, 100.0f));
 	private readonly CameraData uiCamera = new(Matrix4X4.CreateOrthographic(Width, Height, 0.1f, 100.0f));
@@ -137,26 +77,29 @@ void main()
 
 	private readonly Assets assets = new(new FontService("Assets//Font"));
 
-	protected override void LoadGame()
+	private TextLabel fpsLabel;
+	private TextLabel zoomLabel;
+
+	private UiElements uiElements;
+
+	public void Load()
 	{
-		Gl = GraphicsDevice!.gl;
-		camera2D = new Camera2DController(gameCamera, PrimaryMouse!)
+		window = Engine.Window;
+
+		window.Resize += OnResize;
+
+		Gl = Engine.GraphicsDevice!.gl;
+		camera2D = new Camera2DController(gameCamera, Engine.PrimaryMouse)
 		{
 			Speed = 1000f
 		};
 
-		renderer = new Renderer2D(GraphicsDevice);
+		renderer = new Renderer2D();
 
-		Shader = new Shader(
-			GraphicsDevice,
-			new Shader.ShaderPart(VertexShaderSource, ShaderType.VertexShader),
-			new Shader.ShaderPart(FragmentShaderSource, ShaderType.FragmentShader))
-		.Compile() ?? throw new InvalidOperationException("Shader compilation error!");
+		Shader = new DefaultShader()
+			.Compile() ?? throw new InvalidOperationException("Shader compilation error!");
 
-		PostProcessingShader = new Shader(
-			GraphicsDevice,
-				new Shader.ShaderPart(PostProcesssingVertexShader, ShaderType.VertexShader),
-				new Shader.ShaderPart(PostProcesssingFragmentShader, ShaderType.FragmentShader))
+		PostProcessingShader = new PostProcessingShader()
 			.Compile() ?? throw new InvalidOperationException("Shader compilation error!");
 
 		framebuffer = new FrameBuffer(
@@ -166,13 +109,13 @@ void main()
 				new Texture2d(Width, Height, mipmap: false)
 			});
 
-		defaultFb = new FrameBuffer(new(_window.Size.X, _window.Size.Y));
+		defaultFb = new FrameBuffer(new(window.Size.X, window.Size.Y));
 
 		texture = new Texture2d(1, 1, new byte[] { 0, 255, 0, 255 });
 
-		quadVao = new VertexArrayBuffer(GraphicsDevice);
+		quadVao = new VertexArrayBuffer(GraphicsDevice.Current);
 		quadVao.Bind();
-		quadVBO = Graphics.Buffers.Buffer.Vertex.New(GraphicsDevice, quadVertices, BufferUsageARB.StaticDraw);
+		quadVBO = Graphics.Buffers.Buffer.Vertex.New(GraphicsDevice.Current, quadVertices, BufferUsageARB.StaticDraw);
 		quadVBO.Bind();
 
 		Gl.EnableVertexAttribArray(0);
@@ -264,10 +207,33 @@ void main()
 		//		.GenerateAtlas("C:\\Windows\\Fonts\\consola.ttf")
 		//		.GetSpriteFont();
 		fontRenderer = new FontRenderer(assets.LoadFont("consola"), fontShader);
+
+		fpsLabel = new TextLabel(
+			fontRenderer,
+			new Transform2d(new (-Width / 2f + 20, Height / 2f - 20)))
+		{
+			FontSize = 11f,
+			Color = new Vector4D<float>(1f, 0f, 0f, 1f),
+		};
+
+		zoomLabel = new TextLabel(
+			fontRenderer,
+			new Transform2d(new(-Width / 2f + 20, Height / 2f - 40)))
+		{
+			FontSize = 13f,
+			Color = new Vector4D<float>(1f, 0f, 0f, 1f),
+		};
+
+		uiElements = new(
+			fpsLabel,
+			zoomLabel
+		);
 	}
 
-	protected override void OnRender(double delta)
+	public void Render(GameTime time)
 	{
+		var (totalRenderTime, delta) = (time.TotalTime, time.DeltaTime);
+
 		framebuffer.Bind();
 		framebuffer.Clear();
 
@@ -288,19 +254,17 @@ void main()
 
 		renderer!.FlushAll();
 
-		timer += (float)delta;
+		timer += delta;
 		if (timer > 1)
 		{
 			timer = 0;
 			fps = 1.0f / (float)delta;
 		}
 
-		fontRenderer.DrawText(new TextRenderComponent(
-			$"FPS: {fps:0.000}",
-			new Vector2D<float>(-Width / 2f + 20, Height / 2f - 20),
-			11f,
-			new Vector4D<float>(1f, 0f, 0f, 1f)));
+		fpsLabel.Text = $"FPS: {fps:0.000}";
+		zoomLabel.Text = $"Zoom scale: {camera2D.CurrentZoom:0.0000}";
 
+		uiElements.Draw();
 		fontRenderer.Flush(uiCamera);
 
 		framebuffer.Unbind();
@@ -319,9 +283,10 @@ void main()
 		Gl.DrawArrays(PrimitiveType.Triangles, 0, 6);
 	}
 
-	protected override void OnUpdate(GameTime time)
+	public void Update(GameTime time)
 	{
-		AddRenderTask(() =>
+		// does not make sense to update camera in single thread app
+		Engine.AddRenderTask(() =>
 		{
 			Shader.BindUniforms(camera2D.CameraData);
 		});
@@ -331,7 +296,7 @@ void main()
 
 		solver.Update(time.DeltaTime);
 
-		if (PrimaryKeyboard!.IsKeyPressed(Key.Space))
+		if (Engine.PrimaryKeyboard.IsKeyPressed(Key.Space))
 		{
 			verletObjects.Add(
 				new VerletCircleObject(
@@ -342,12 +307,12 @@ void main()
 		}
 	}
 
-	protected override void OnClose()
+	public void Unload()
 	{
 		Shader.Dispose();
 	}
 
-	protected override void OnResize(Vector2D<int> size)
+	private void OnResize(Vector2D<int> size)
 	{
 		defaultFb.Resize(new Size(size.X, size.Y));
 	}

@@ -10,7 +10,7 @@ public class Renderer2D : IDisposable
 {
 	private readonly BatchRenderer<CircleVertex, CircleRenderComponent> circleRenderer;
 
-	public Renderer2D(GraphicsDevice graphicsDevice)
+	public Renderer2D()
 	{
 		circleRenderer = new BatchRenderer<CircleVertex, CircleRenderComponent>(
 			new CircleVertexLayout(),

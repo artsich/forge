@@ -1,3 +1,5 @@
 ﻿using Forge;
 
-new ForgeGame().Run();
+new Engine(
+	new ForgeGame()
+).Run();
