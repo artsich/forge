@@ -40,8 +40,6 @@ public unsafe class ForgeGame : ILayer
 	private readonly CameraData gameCamera = new(Matrix4X4.CreateOrthographic(Width, Height, 0.1f, 100.0f));
 	private readonly CameraData uiCamera = new(Matrix4X4.CreateOrthographic(Width, Height, 0.1f, 100.0f));
 
-	private Renderer2D? renderer;
-
 	private Camera2DController camera2D;
 
 	private Texture2d texture;
@@ -81,6 +79,10 @@ public unsafe class ForgeGame : ILayer
 	private TextLabel zoomLabel;
 
 	private UiRoot uiElements;
+	private CompiledShader quadShader;
+
+	private CircleRenderer circleRenderer;
+	private QuadRenderer quadRenderer;
 
 	public void Load()
 	{
@@ -93,8 +95,6 @@ public unsafe class ForgeGame : ILayer
 		{
 			Speed = 1000f
 		};
-
-		renderer = new Renderer2D();
 
 		Shader = new DefaultShader()
 			.Compile() ?? throw new InvalidOperationException("Shader compilation error!");
@@ -183,6 +183,11 @@ public unsafe class ForgeGame : ILayer
 		mouse.MouseDown += (mouse, button) => uiElements.OnMouseDown(new (mouse.Position.X, mouse.Position.Y), button);
 		mouse.MouseUp += (mouse, button) => uiElements.OnMouseUp(new (mouse.Position.X, mouse.Position.Y), button);
 		mouse.MouseMove += (mouse, position) => uiElements.OnMouseMove(new (mouse.Position.X, mouse.Position.Y));
+
+		quadShader = new QuadShader().Compile() ?? throw new Exception("Shader compilation failed");
+
+		circleRenderer = new CircleRenderer();
+		quadRenderer = new QuadRenderer();
 	}
 
 	public void Render(GameTime time)
@@ -204,10 +209,16 @@ public unsafe class ForgeGame : ILayer
 				Radius = obj.Radius,
 			};
 
-			renderer!.DrawCircle(renderInfo);
+			circleRenderer.Push(ref renderInfo);
 		}
+		circleRenderer.Flush();
 
-		renderer!.FlushAll();
+		quadShader.Bind();
+		quadShader["cameraViewProj"].SetValue(gameCamera.ViewProjection);
+
+		var quad = new QuadRenderComponent(new Vector2D<float>(0), new Vector2D<float>(50, 50), new Vector4D<float>(1, 0, 0, 1));
+		quadRenderer.Push(ref quad);
+		quadRenderer.Flush();
 
 		timer += delta;
 		if (timer > 1)

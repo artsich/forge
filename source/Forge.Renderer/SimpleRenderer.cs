@@ -1,37 +1,28 @@
-﻿using Forge.Graphics;
-using Forge.Renderer.Components;
+﻿using Forge.Renderer.Components;
 using Forge.Renderer.Vertices.Layouts;
 using Forge.Renderer.VertexAssebmlers;
 using Forge.Renderer.Vertices;
 
 namespace Forge.Renderer;
 
-public class Renderer2D : IDisposable
+public class CircleRenderer : BatchRenderer<CircleVertex, CircleRenderComponent>
 {
-	private readonly BatchRenderer<CircleVertex, CircleRenderComponent> circleRenderer;
-
-	public Renderer2D()
-	{
-		circleRenderer = new BatchRenderer<CircleVertex, CircleRenderComponent>(
-			new CircleVertexLayout(),
+	public CircleRenderer() 
+		: base(
+			new CircleVertexLayout(), 
 			new CircleAssembler(segmentsCount: 12),
-			new BatchRendererDescription(5000));
-	}
-
-	// todo: can be moved to extensions?
-	// todo: looks not good solution, think about refactoring!
-	public void DrawCircle(CircleRenderComponent circle)
+			new BatchRendererDescription(5000))
 	{
-		circleRenderer.Push(ref circle);
 	}
+}
 
-	public void FlushAll()
+public class QuadRenderer : BatchRenderer<QuadVertex, QuadRenderComponent>
+{
+	public QuadRenderer()
+		: base(
+			new QuadVertexLayout(),
+			new QuadAssembler(),
+			new BatchRendererDescription(5000))
 	{
-		circleRenderer.Flush();
-	}
-
-	public void Dispose()
-	{
-		circleRenderer?.Dispose();
 	}
 }

@@ -7,3 +7,11 @@ public interface IVertexLayout
 {
     void Enable(GL gl);
 }
+
+public class QuadVertexLayout : IVertexLayout
+{
+	public void Enable(GL gl)
+	{
+		QuadVertex.EnableVertexPointer(gl);
+	}
+}
