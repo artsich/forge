@@ -13,67 +13,9 @@ using Shader = Forge.Graphics.Shaders.Shader;
 
 namespace Forge;
 
-public class Assets
-{
-	private readonly IFontService fontService;
-	public string patoToAssets = ".\\Assets";
-
-	public Assets(IFontService fontService)
-	{
-		this.fontService = fontService;
-	}
-
-	public SpriteFont LoadFont(string name)
-	{
-		return fontService.GetFont(name);
-	}
-}
-
-public class CircleDrawer
-{
-	private const int CircleCount = 5000;
-
-	private readonly int screenWidth;
-	private readonly int screenHeight;
-
-	public CircleDrawer(int screenWidth, int screenHeight)
-	{
-		this.screenWidth = screenWidth;
-		this.screenHeight = screenHeight;
-	}
-
-	public void DrawCircles(Renderer2D renderer)
-	{
-		int circlesInXDirection = (int)Math.Sqrt(CircleCount * screenWidth / (float)screenHeight);
-		int circlesInYDirection = CircleCount / circlesInXDirection;
-
-		Vector4D<float> color = new(1.0f, 0.5f, 0.5f, 1.0f);
-		float fade = 0.04f;
-		float radius = 10.0f;
-
-		float deltaX = radius * 2;
-		float deltaY = radius * 2;
-
-		int startX = -screenWidth / 2;
-		int startY = -screenHeight / 2;
-
-		for (int i = 0; i < circlesInXDirection; i++)
-		{
-			for (int j = 0; j < circlesInYDirection; j++)
-			{
-				Vector2D<float> position = new(startX + i * deltaX, startY + j * deltaY);
-				var circle = new CircleRenderComponent(color, position, radius, fade);
-				renderer.DrawCircle(circle);
-			}
-		}
-
-		renderer.FlushAll();
-	}
-}
-
 public unsafe class ForgeGame : Engine
 {
-	public const int Width = 320, Height = 180;
+	public const int Width = 640, Height = 360;
 	private static GL Gl;
 
 	private static CompiledShader Shader;
