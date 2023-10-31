@@ -80,7 +80,7 @@ public unsafe class ForgeGame : ILayer
 	private TextLabel fpsLabel;
 	private TextLabel zoomLabel;
 
-	private UiElements uiElements;
+	private UiRoot uiElements;
 
 	public void Load()
 	{
@@ -178,6 +178,11 @@ public unsafe class ForgeGame : ILayer
 			fpsLabel,
 			zoomLabel
 		);
+
+		var mouse = Engine.PrimaryMouse;
+		mouse.MouseDown += (mouse, button) => uiElements.OnMouseDown(new (mouse.Position.X, mouse.Position.Y), button);
+		mouse.MouseUp += (mouse, button) => uiElements.OnMouseUp(new (mouse.Position.X, mouse.Position.Y), button);
+		mouse.MouseMove += (mouse, position) => uiElements.OnMouseMove(new (mouse.Position.X, mouse.Position.Y));
 	}
 
 	public void Render(GameTime time)

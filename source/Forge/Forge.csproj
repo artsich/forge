@@ -9,10 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Silk.NET.Input" Version="2.17.1" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Forge.Physics\Forge.Physics.csproj" />
     <ProjectReference Include="..\Forge.Renderer\Forge.Renderer.csproj" />
   </ItemGroup>
