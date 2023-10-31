@@ -216,9 +216,14 @@ public unsafe class ForgeGame : ILayer
 		quadShader.Bind();
 		quadShader["cameraViewProj"].SetValue(gameCamera.ViewProjection);
 
+
+		GraphicsDevice.Current.gl.Enable(GLEnum.Blend);
+		GraphicsDevice.Current.gl.BlendFunc(GLEnum.SrcAlpha, GLEnum.OneMinusSrcAlpha);
+
 		var quad = new QuadRenderComponent(new Vector2D<float>(0), new Vector2D<float>(50, 50), new Vector4D<float>(1, 0, 0, 1));
 		quadRenderer.Push(ref quad);
 		quadRenderer.Flush();
+		GraphicsDevice.Current.gl.Disable(GLEnum.Blend);
 
 		timer += delta;
 		if (timer > 1)

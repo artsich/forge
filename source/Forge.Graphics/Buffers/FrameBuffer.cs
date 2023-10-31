@@ -74,8 +74,9 @@ public sealed class FrameBuffer : GraphicsResourceBase
 		GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 	}
 
-	public void Clear()
+	public void Clear(Color color = default)
 	{
+		GL.ClearColor(color);
 		GL.Clear(clearBufferMask);
 	}
 
