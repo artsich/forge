@@ -2,7 +2,7 @@
 
 namespace Forge.Graphics.Shaders;
 
-public class Shader
+public class ShaderSources
 {
 	private readonly GraphicsDevice gd;
 	private readonly ShaderPart[] shaderParts;
@@ -54,7 +54,7 @@ public class Shader
 		}
 	}
 
-	public Shader(GraphicsDevice gd, params ShaderPart[] shaderParts)
+	public ShaderSources(GraphicsDevice gd, params ShaderPart[] shaderParts)
 	{
 		this.gd = gd;
 		this.shaderParts = shaderParts;

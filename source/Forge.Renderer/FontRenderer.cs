@@ -15,7 +15,7 @@ public class FontRenderer : GraphicsResourceBase
 	private readonly CompiledShader shader;
 	private readonly BatchRenderer<GlyphVertex, CharacterRenderComponent> batchRenderer;
 
-	public FontRenderer(SpriteFont font, CompiledShader shader)
+	public FontRenderer(SpriteFont font, ShaderSources shader)
 		: this(
 			font,
 			shader,
@@ -29,12 +29,12 @@ public class FontRenderer : GraphicsResourceBase
 
 	private FontRenderer(
 		SpriteFont font,
-		CompiledShader shader,
+		ShaderSources shader,
 		BatchRenderer<GlyphVertex, CharacterRenderComponent> batchRenderer)
 		: base(GraphicsDevice.Current)
 	{
 		this.font = font;
-		this.shader = shader;
+		this.shader = shader.Compile() ?? throw new Exception("Shader compilation failed");
 		this.batchRenderer = batchRenderer;
 	}
 
@@ -85,5 +85,6 @@ public class FontRenderer : GraphicsResourceBase
 	protected override void OnDestroy()
 	{
 		batchRenderer?.Dispose();
+		shader?.Dispose();
 	}
 }

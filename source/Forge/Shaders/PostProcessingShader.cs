@@ -1,10 +1,10 @@
 ﻿using Forge.Graphics;
 using Silk.NET.OpenGL;
-using Shader = Forge.Graphics.Shaders.Shader;
+using ShaderSources = Forge.Graphics.Shaders.ShaderSources;
 
 namespace Forge.Shaders;
 
-public class PostProcessingShader : Shader
+internal class PostProcessingShader : ShaderSources
 {
 	public PostProcessingShader()
 		: base(GraphicsDevice.Current,

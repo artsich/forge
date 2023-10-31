@@ -1,20 +1,20 @@
 ﻿using Forge.Graphics;
 using Silk.NET.OpenGL;
-using Shader = Forge.Graphics.Shaders.Shader;
+using ShaderSources = Forge.Graphics.Shaders.ShaderSources;
 
-namespace Forge.Shaders
+namespace Forge.Shaders;
+
+internal class DefaultShader : ShaderSources
 {
-	public class DefaultShader : Shader
+	public DefaultShader() :
+		base(GraphicsDevice.Current,
+			new ShaderPart(FragmentShaderSource, ShaderType.FragmentShader),
+			new ShaderPart(VertexShaderSource, ShaderType.VertexShader)
+		)
 	{
-		public DefaultShader() :
-			base(GraphicsDevice.Current,
-				new ShaderPart(FragmentShaderSource, ShaderType.FragmentShader),
-				new ShaderPart(VertexShaderSource, ShaderType.VertexShader)
-			)
-		{
-		}
+	}
 
-		private static readonly string VertexShaderSource = @"
+	private static readonly string VertexShaderSource = @"
 #version 330 core
 layout (location = 0) in vec3 vPos;
 layout (location = 1) in vec4 vColor;
@@ -39,7 +39,7 @@ void main()
 }
 ";
 
-		private static readonly string FragmentShaderSource = @"
+	private static readonly string FragmentShaderSource = @"
 #version 330 core
 
 out vec4 FragColor;
@@ -61,5 +61,4 @@ void main()
 	FragColor = vec4(c, 1.0);
 }
 ";
-	}
 }
