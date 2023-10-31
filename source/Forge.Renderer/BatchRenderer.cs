@@ -1,7 +1,7 @@
 ﻿using Forge.Graphics;
 using Forge.Graphics.Buffers;
-using Forge.Renderer.Layouts;
 using Forge.Renderer.VertexAssebmlers;
+using Forge.Renderer.Vertices.Layouts;
 using Silk.NET.OpenGL;
 
 namespace Forge.Renderer;

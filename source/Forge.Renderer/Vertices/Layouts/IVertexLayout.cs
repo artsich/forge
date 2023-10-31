@@ -1,9 +1,9 @@
 ﻿using Silk.NET.OpenGL;
 
-namespace Forge.Renderer.Layouts;
+namespace Forge.Renderer.Vertices.Layouts;
 
 // todo: Replace with auto layout
 public interface IVertexLayout
 {
-	void Enable(GL gl);
+    void Enable(GL gl);
 }

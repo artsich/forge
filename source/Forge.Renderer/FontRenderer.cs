@@ -2,7 +2,7 @@
 using Forge.Graphics.Shaders;
 using Forge.Renderer.Components;
 using Forge.Renderer.Font;
-using Forge.Renderer.Layouts;
+using Forge.Renderer.Vertices.Layouts;
 using Forge.Renderer.VertexAssebmlers;
 using Forge.Renderer.Vertices;
 using Silk.NET.OpenGL;

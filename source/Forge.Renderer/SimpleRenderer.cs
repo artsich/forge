@@ -1,6 +1,6 @@
 ﻿using Forge.Graphics;
 using Forge.Renderer.Components;
-using Forge.Renderer.Layouts;
+using Forge.Renderer.Vertices.Layouts;
 using Forge.Renderer.VertexAssebmlers;
 using Forge.Renderer.Vertices;
 
