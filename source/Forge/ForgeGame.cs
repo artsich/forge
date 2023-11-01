@@ -29,7 +29,7 @@ public interface ILayer
 
 public unsafe class ForgeGame : ILayer
 {
-	public const int Width = 640, Height = 360;
+	public const int Width = 640, Height = 9 * Width / 16;
 
 	private IWindow window;
 	private static GL Gl;
@@ -162,7 +162,7 @@ public unsafe class ForgeGame : ILayer
 			fontRenderer,
 			new Transform2d(new (-Width / 2f + 20, Height / 2f - 20)))
 		{
-			FontSize = 14f,
+			FontSize = 13f,
 			Color = new Vector4D<float>(1f, 0f, 0f, 1f),
 		};
 
@@ -170,7 +170,7 @@ public unsafe class ForgeGame : ILayer
 			fontRenderer,
 			new Transform2d(new(-Width / 2f + 20, Height / 2f - 40)))
 		{
-			FontSize = 14f,
+			FontSize = 13f,
 			Color = new Vector4D<float>(1f, 0f, 0f, 1f),
 		};
 
