@@ -38,7 +38,7 @@ uniform sampler2D text;
 uniform vec3 textColor = vec3(1.0);
 
 const float width = 0.4;
-const float edge = 0.1;
+const float edge = 0.2;
 
 void main()
 {

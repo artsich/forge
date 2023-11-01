@@ -9,9 +9,9 @@ public struct QuadRenderComponent
 	public Vector2D<float> Size;
 	public Vector4D<float> Color;
 
-	public Matrix4X4<float> Model => Matrix4X4.CreateTranslation(new Vector3D<float>(Position, 0)) *
-									 Matrix4X4.CreateRotationZ(Rotation) *
-									 Matrix4X4.CreateScale(new Vector3D<float>(Size, 1));
+	public readonly Matrix4X4<float> Model => Matrix4X4.CreateScale(new Vector3D<float>(Size, 1)) *
+									Matrix4X4.CreateRotationZ(Rotation) *
+									Matrix4X4.CreateTranslation(new Vector3D<float>(Position, 0));
 
 	public QuadRenderComponent(Vector2D<float> position, Vector2D<float> size, Vector4D<float> color)
 	{

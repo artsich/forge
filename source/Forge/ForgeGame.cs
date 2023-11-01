@@ -162,7 +162,7 @@ public unsafe class ForgeGame : ILayer
 			fontRenderer,
 			new Transform2d(new (-Width / 2f + 20, Height / 2f - 20)))
 		{
-			FontSize = 11f,
+			FontSize = 14f,
 			Color = new Vector4D<float>(1f, 0f, 0f, 1f),
 		};
 
@@ -170,7 +170,7 @@ public unsafe class ForgeGame : ILayer
 			fontRenderer,
 			new Transform2d(new(-Width / 2f + 20, Height / 2f - 40)))
 		{
-			FontSize = 13f,
+			FontSize = 14f,
 			Color = new Vector4D<float>(1f, 0f, 0f, 1f),
 		};
 
@@ -220,7 +220,7 @@ public unsafe class ForgeGame : ILayer
 		GraphicsDevice.Current.gl.Enable(GLEnum.Blend);
 		GraphicsDevice.Current.gl.BlendFunc(GLEnum.SrcAlpha, GLEnum.OneMinusSrcAlpha);
 
-		var quad = new QuadRenderComponent(new Vector2D<float>(0), new Vector2D<float>(50, 50), new Vector4D<float>(1, 0, 0, 1));
+		var quad = new QuadRenderComponent(new Vector2D<float>(0, 0), new Vector2D<float>(50, 80), new Vector4D<float>(1, 0, 0, 1));
 		quadRenderer.Push(ref quad);
 		quadRenderer.Flush();
 		GraphicsDevice.Current.gl.Disable(GLEnum.Blend);

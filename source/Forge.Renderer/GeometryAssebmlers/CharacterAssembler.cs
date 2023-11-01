@@ -1,6 +1,7 @@
 ﻿using Forge.Renderer.Components;
 using Forge.Renderer.Utils;
 using Forge.Renderer.Vertices;
+using Silk.NET.Maths;
 
 namespace Forge.Renderer.VertexAssebmlers;
 
@@ -10,31 +11,45 @@ public class CharacterAssembler : IGeometryAssembler<GlyphVertex, CharacterRende
 
 	public int IndicesRequired => 6;
 
-	public void Assemble(Span<GlyphVertex> vertices, ref CharacterRenderComponent glyph)
+	private static readonly Vector4D<float>[] QuadVertexPositions = new Vector4D<float>[4]
+{
+		new Vector4D<float>(0, 0, 0f, 1f),
+		new Vector4D<float>(1, 0, 0f, 1f),
+		new Vector4D<float>(1, 1, 0f, 1f),
+		new Vector4D<float>(0, 1, 0f, 1f),
+	};
+
+	public unsafe void Assemble(Span<GlyphVertex> vertices, ref CharacterRenderComponent glyph)
 	{
 		if (vertices.Length < VerticesRequired)
 			throw new ArgumentException($"Span must have at least {VerticesRequired} elements", nameof(vertices));
 
-		var pos = glyph.Position;
-		var size = glyph.Size;
+		var model = glyph.Model;
+		var poss = stackalloc Vector2D<float>[4];
 
-		vertices[0] = new GlyphVertex(pos, glyph.UV.Origin, glyph.Color);
+		for (int i = 0; i < 4; i++)
+		{
+			var v4 = QuadVertexPositions[i] * model;
+			poss[i] = new(v4.X, v4.Y);
+		}
+
+		vertices[0] = new GlyphVertex(poss[0], glyph.UV.Origin, glyph.Color);
 
 		vertices[1] = new GlyphVertex(
-			pos.X + size.X,
-			pos.Y,
+			poss[1].X,
+			poss[1].Y,
 			glyph.UV.Origin.X + glyph.UV.Size.X,
 			glyph.UV.Origin.Y,
 			glyph.Color);
 
 		vertices[2] = new GlyphVertex(
-			pos + size,
+			poss[2],
 			glyph.UV.Origin + glyph.UV.Size,
 			glyph.Color);
 
 		vertices[3] = new GlyphVertex(
-			pos.X,
-			pos.Y + size.Y,
+			poss[3].X,
+			poss[3].Y,
 			glyph.UV.Origin.X,
 			glyph.UV.Origin.Y + glyph.UV.Size.Y, glyph.Color);
 	}
