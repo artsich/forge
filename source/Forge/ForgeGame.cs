@@ -154,11 +154,14 @@ public unsafe class ForgeGame : ILayer
 
 		solver = new VerletSolver(verletObjects, verletLinks);
 
+		var fontSprite = assets.LoadFont("consola");
+
 		fontRenderer = new FontRenderer(
-			assets.LoadFont("consola"),
+			fontSprite,
 			new SdfFontShader());
 
 		fpsLabel = new TextLabel(
+			fontSprite.FontMetrics,
 			fontRenderer,
 			new Transform2d(new (-Width / 2f + 20, Height / 2f - 20)))
 		{
@@ -167,6 +170,7 @@ public unsafe class ForgeGame : ILayer
 		};
 
 		zoomLabel = new TextLabel(
+			fontSprite.FontMetrics,
 			fontRenderer,
 			new Transform2d(new(-Width / 2f + 20, Height / 2f - 40)))
 		{
@@ -174,15 +178,22 @@ public unsafe class ForgeGame : ILayer
 			Color = new Vector4D<float>(1f, 0f, 0f, 1f),
 		};
 
+		zoomLabel.OnClick += (_, _) => Console.WriteLine("Clicked!");
+		fpsLabel.OnClick += (_, _) => Console.WriteLine("Clicked!");
+
 		uiElements = new(
 			fpsLabel,
 			zoomLabel
 		);
 
-		var mouse = Engine.PrimaryMouse;
-		mouse.MouseDown += (mouse, button) => uiElements.OnMouseDown(new (mouse.Position.X, mouse.Position.Y), button);
-		mouse.MouseUp += (mouse, button) => uiElements.OnMouseUp(new (mouse.Position.X, mouse.Position.Y), button);
-		mouse.MouseMove += (mouse, position) => uiElements.OnMouseMove(new (mouse.Position.X, mouse.Position.Y));
+		Vector2D<float> mapToCameraCoord(float x, float y)
+		{
+			var xx = x / window.Size.X;
+			var yy = y / window.Size.Y;
+			return new(Width * xx - Width / 2f, Height / 2f - Height * yy);
+		}
+
+		Engine.PrimaryMouse.MouseDown += (mouse, button) => uiElements.OnMouseDown(mapToCameraCoord(mouse.Position.X, mouse.Position.Y), button);
 
 		quadShader = new QuadShader().Compile() ?? throw new Exception("Shader compilation failed");
 

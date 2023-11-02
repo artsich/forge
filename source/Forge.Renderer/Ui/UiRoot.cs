@@ -20,15 +20,15 @@ public class UiRoot
 		}
 	}
 
-	public void OnMouseUp(Vector2D<float> pos, MouseButton button)
-	{
-	}
-
 	public void OnMouseDown(Vector2D<float> pos, MouseButton button)
 	{
-	}
-
-	public void OnMouseMove(Vector2D<float> pos)
-	{
+		foreach (var element in elements)
+		{
+			if (element.Aabb.Contains(pos))
+			{
+				element.OnMouseDown(pos, button);
+				break;
+			}
+		}
 	}
 }

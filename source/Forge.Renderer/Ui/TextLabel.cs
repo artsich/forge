@@ -1,4 +1,6 @@
 ﻿using Forge.Renderer.Components;
+using Forge.Renderer.Font;
+using Silk.NET.Input;
 using Silk.NET.Maths;
 
 namespace Forge.Renderer.Ui;
@@ -6,6 +8,7 @@ namespace Forge.Renderer.Ui;
 public class TextLabel : UiElement
 {
 	private float fontSize;
+	private readonly FontMetrics fontInfo;
 	private readonly FontRenderer renderer;
 
 	public string Text { get; set; } = string.Empty;
@@ -25,11 +28,22 @@ public class TextLabel : UiElement
 
 	public Vector4D<float> Color { get; set; } = Vector4D<float>.One;
 
+	public override Box2D<float> Aabb
+	{
+		get
+		{
+			var size = fontInfo.MeasureText(Text, FontSize);
+			return new Box2D<float>(Transform.Position, Transform.Position + size);
+		}
+	}
+
 	public TextLabel(
+		FontMetrics fontInfo,
 		FontRenderer renderer,
 		Transform2d transform)
 		: base(transform)
 	{
+		this.fontInfo = fontInfo;
 		this.renderer = renderer;
 	}
 

@@ -11,13 +11,13 @@ namespace Forge.Renderer;
 
 public class FontRenderer : GraphicsResourceBase
 {
-	private readonly SpriteFont font;
+	private readonly SpriteFont fontSprite;
 	private readonly CompiledShader shader;
 	private readonly BatchRenderer<GlyphVertex, CharacterRenderComponent> batchRenderer;
 
-	public FontRenderer(SpriteFont font, ShaderSources shader)
+	public FontRenderer(SpriteFont fontSprite, ShaderSources shader)
 		: this(
-			font,
+			fontSprite,
 			shader,
 			new BatchRenderer<GlyphVertex, CharacterRenderComponent>(
 				new FontQuadLayout(),
@@ -28,29 +28,30 @@ public class FontRenderer : GraphicsResourceBase
 	}
 
 	private FontRenderer(
-		SpriteFont font,
+		SpriteFont fontSprite,
 		ShaderSources shader,
 		BatchRenderer<GlyphVertex, CharacterRenderComponent> batchRenderer)
 		: base(GraphicsDevice.Current)
 	{
-		this.font = font;
+		this.fontSprite = fontSprite;
 		this.shader = shader.Compile() ?? throw new Exception("Shader compilation failed");
 		this.batchRenderer = batchRenderer;
 	}
 
 	public void DrawText(TextRenderComponent text)
 	{
+		var metrics = fontSprite.FontMetrics;
 		var position = text.Position;
-		var scaleFactor = text.Scale / font.Size;
+		var scaleFactor = text.Scale / metrics.Size;
 
 		char? lastChar = null;
 		foreach (var character in text.String)
 		{
-			if (font.Glyphs.TryGetValue(character, out var glyph))
+			if (metrics.TryGetGlyph(character, out var glyph))
 			{
 				if (lastChar.HasValue)
 				{
-					position.X += font.GetKerning(lastChar.Value, character) * scaleFactor;
+					position.X += metrics.GetKerning(lastChar.Value, character) * scaleFactor;
 				}
 
 				var characterComponent = new CharacterRenderComponent
@@ -72,7 +73,7 @@ public class FontRenderer : GraphicsResourceBase
 	public void Flush(CameraData camera)
 	{
 		shader.Bind(camera);
-		font.Atlas.Bind(0);
+		fontSprite.Atlas.Bind(0);
 
 		Gd.gl.Enable(GLEnum.Blend);
 		Gd.gl.BlendFunc(GLEnum.SrcAlpha, GLEnum.OneMinusSrcAlpha);
