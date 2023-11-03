@@ -32,14 +32,7 @@ out vec4 FragColor;
 
 void main() {
 	vec2 uv = TexPos;
-	float edge = 0.12;
-	float width = 0.1;
-
-	vec2 smoothedStart = smoothstep(vec2(edge - width), vec2(edge), uv);
-	vec2 smoothedEnd = smoothstep(vec2(1.0 - edge + width), vec2(1.0 - edge), uv);
-
-	float alpha = smoothedStart.x * smoothedEnd.x * smoothedStart.y * smoothedEnd.y;
-	FragColor = vec4(Color.xyz * alpha, alpha);
+	FragColor = vec4(Color.xyz, 1.);
 }
 ";
 
