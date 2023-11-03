@@ -14,10 +14,10 @@ public class QuadAssembler : IGeometryAssembler<QuadVertex, QuadRenderComponent>
 
 	private static readonly Vector4D<float>[] QuadVertexPositions = new Vector4D<float>[4]
 	{
-		new Vector4D<float>(-0.5f, 0.5f, 0.0f, 1.0f),
-		new Vector4D<float>(0.5f, 0.5f, 0.0f, 1.0f),
-		new Vector4D<float>(0.5f, -0.5f, 0.0f, 1.0f),
-		new Vector4D<float>(-0.5f, -0.5f, 0.0f, 1.0f),
+		new Vector4D<float>(0f, 0f, 0.0f, 1.0f),
+		new Vector4D<float>(1f, 0f, 0.0f, 1.0f),
+		new Vector4D<float>(1f, -1f, 0.0f, 1.0f),
+		new Vector4D<float>(0f, -1f, 0.0f, 1.0f),
 	};
 
 	public static readonly Vector2D<float>[] TextureCoords = new Vector2D<float>[4]

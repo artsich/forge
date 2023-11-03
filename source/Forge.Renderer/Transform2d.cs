@@ -14,7 +14,11 @@ public class Transform2d
 									 Matrix4X4.CreateRotationZ(Rotation) *
 									 Matrix4X4.CreateTranslation(Position.X, Position.Y, 0);
 
-    public Transform2d(Vector2D<float> position)
+	public Transform2d()
+	{
+	}
+
+	public Transform2d(Vector2D<float> position)
 		: this(position, Vector2D<float>.One, 0)
 	{
 	}

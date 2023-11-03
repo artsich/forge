@@ -12,11 +12,11 @@ public class CharacterAssembler : IGeometryAssembler<GlyphVertex, CharacterRende
 	public int IndicesRequired => 6;
 
 	private static readonly Vector4D<float>[] QuadVertexPositions = new Vector4D<float>[4]
-{
-		new Vector4D<float>(0, 0, 0f, 1f),
-		new Vector4D<float>(1, 0, 0f, 1f),
-		new Vector4D<float>(1, 1, 0f, 1f),
-		new Vector4D<float>(0, 1, 0f, 1f),
+	{
+		new Vector4D<float>(0f, 0f, 0.0f, 1.0f),
+		new Vector4D<float>(1f, 0f, 0.0f, 1.0f),
+		new Vector4D<float>(1f, -1f, 0.0f, 1.0f),
+		new Vector4D<float>(0f, -1f, 0.0f, 1.0f),
 	};
 
 	public unsafe void Assemble(Span<GlyphVertex> vertices, ref CharacterRenderComponent glyph)

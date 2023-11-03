@@ -40,7 +40,7 @@ uniform vec3 textColor = vec3(1.0);
 const float width = 0.4;
 const float edge = 0.1;
 
-const int effect = 1;
+const int effect = 0;
 
 void main()
 {

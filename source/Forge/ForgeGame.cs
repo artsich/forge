@@ -77,12 +77,14 @@ public unsafe class ForgeGame : ILayer
 
 	private TextLabel fpsLabel;
 	private TextLabel zoomLabel;
-
+	private TextLabel entitiesOnScreen;
+	private Renderer.Ui.Button button;
+	private TextLabel mousePositionLabel;
 	private UiRoot uiElements;
 	private CompiledShader quadShader;
 
 	private CircleRenderer circleRenderer;
-	private QuadRenderer quadRenderer;
+	private ButtonRenderer buttonsRenderer;
 
 	public void Load()
 	{
@@ -153,6 +155,10 @@ public unsafe class ForgeGame : ILayer
 		};
 
 		solver = new VerletSolver(verletObjects, verletLinks);
+		quadShader = new QuadShader().Compile() ?? throw new Exception("Shader compilation failed");
+
+		circleRenderer = new CircleRenderer();
+		buttonsRenderer = new ButtonRenderer(quadShader);
 
 		var fontSprite = assets.LoadFont("consola");
 
@@ -178,27 +184,80 @@ public unsafe class ForgeGame : ILayer
 			Color = new Vector4D<float>(1f, 0f, 0f, 1f),
 		};
 
+		entitiesOnScreen = new TextLabel(
+			fontSprite.FontMetrics,
+			fontRenderer,
+			new Transform2d(new(-Width / 2f + 20, Height / 2f - 60)))
+		{
+			FontSize = 13f,
+			Color = new Vector4D<float>(1f, 0f, 0f, 1f),
+		};
+
+		mousePositionLabel = new TextLabel(
+			fontSprite.FontMetrics,
+			fontRenderer,
+			new Transform2d(new(-Width / 2f + 20, Height / 2f - 80)))
+		{
+			FontSize = 13f,
+			Color = new Vector4D<float>(1f, 0f, 0f, 1f),
+		};
+
+		button = new(
+			new TextLabel(
+				fontSprite.FontMetrics,
+				fontRenderer)
+			{
+				Text = "Open animator",
+				FontSize = 20f,
+				Color = new Vector4D<float>(1f, 0f, 0f, 1f),
+			},
+			new Transform2d(new(-Width / 2f + 20, Height / 2f - 160)),
+			buttonsRenderer)
+		{
+			Color = new(0f, 1f, 0f, 1f),
+			Padding = new(10, 10, 10, 10),
+		};
+
+		var addEntities = new Renderer.Ui.Button(
+			new TextLabel(
+				fontSprite.FontMetrics,
+				fontRenderer)
+			{
+				Text = "Add entities",
+				FontSize = 20f,
+				Color = new Vector4D<float>(1f, 0f, 0f, 1f),
+			},
+			new Transform2d(new(-Width / 2f + 20, Height / 2f - 120)),
+			buttonsRenderer)
+		{
+			Color = new(0f, 1f, 0f, 1f),
+			Padding = new(10, 10, 10, 10),
+		};
+
+
 		zoomLabel.OnClick += (_, _) => Console.WriteLine("Clicked!");
 		fpsLabel.OnClick += (_, _) => Console.WriteLine("Clicked!");
+		button.OnClick += (_, _) => Console.WriteLine("Animation editor!");
+
+		addEntities.OnClick += (_, _) => GenerateGameObject();
 
 		uiElements = new(
 			fpsLabel,
-			zoomLabel
+			zoomLabel,
+			//button,
+			entitiesOnScreen,
+			mousePositionLabel,
+			addEntities
 		);
 
-		Vector2D<float> mapToCameraCoord(float x, float y)
-		{
-			var xx = x / window.Size.X;
-			var yy = y / window.Size.Y;
-			return new(Width * xx - Width / 2f, Height / 2f - Height * yy);
-		}
+		Engine.PrimaryMouse.MouseDown += (mouse, button) => uiElements.OnMouseDown(mapToCurrentWindowCoord(mouse.Position.X, mouse.Position.Y), button);
+	}
 
-		Engine.PrimaryMouse.MouseDown += (mouse, button) => uiElements.OnMouseDown(mapToCameraCoord(mouse.Position.X, mouse.Position.Y), button);
-
-		quadShader = new QuadShader().Compile() ?? throw new Exception("Shader compilation failed");
-
-		circleRenderer = new CircleRenderer();
-		quadRenderer = new QuadRenderer();
+	private Vector2D<float> mapToCurrentWindowCoord(float x, float y)
+	{
+		var xx = x / window.Size.X;
+		var yy = y / window.Size.Y;
+		return new(Width * xx - Width / 2f, Height / 2f - Height * yy);
 	}
 
 	public void Render(GameTime time)
@@ -227,15 +286,6 @@ public unsafe class ForgeGame : ILayer
 		quadShader.Bind();
 		quadShader["cameraViewProj"].SetValue(gameCamera.ViewProjection);
 
-
-		GraphicsDevice.Current.gl.Enable(GLEnum.Blend);
-		GraphicsDevice.Current.gl.BlendFunc(GLEnum.SrcAlpha, GLEnum.OneMinusSrcAlpha);
-
-		var quad = new QuadRenderComponent(new Vector2D<float>(0, 0), new Vector2D<float>(50, 80), new Vector4D<float>(1, 0, 0, 1));
-		quadRenderer.Push(ref quad);
-		quadRenderer.Flush();
-		GraphicsDevice.Current.gl.Disable(GLEnum.Blend);
-
 		timer += delta;
 		if (timer > 1)
 		{
@@ -245,8 +295,18 @@ public unsafe class ForgeGame : ILayer
 
 		fpsLabel.Text = $"FPS: {fps:0.000}";
 		zoomLabel.Text = $"Zoom scale: {camera2D.CurrentZoom:0.0000}";
+		entitiesOnScreen.Text = "Entities: " + verletObjects.Count;
+		var windowCoord = mapToCurrentWindowCoord((int)Engine.PrimaryMouse.Position.X, (int)Engine.PrimaryMouse.Position.Y);
+		var (x, y) = ((int)windowCoord.X, (int)windowCoord.Y);
+		mousePositionLabel.Text = $"Mouse pos: {x} : {y}";
 
 		uiElements.Draw();
+
+		GraphicsDevice.Current.gl.Enable(GLEnum.Blend);
+		GraphicsDevice.Current.gl.BlendFunc(GLEnum.SrcAlpha, GLEnum.OneMinusSrcAlpha);
+		buttonsRenderer.Flush(uiCamera);
+		GraphicsDevice.Current.gl.Disable(GLEnum.Blend);
+
 		fontRenderer.Flush(uiCamera);
 
 		framebuffer.Unbind();
@@ -280,13 +340,18 @@ public unsafe class ForgeGame : ILayer
 
 		if (Engine.PrimaryKeyboard.IsKeyPressed(Key.Space))
 		{
-			verletObjects.Add(
-				new VerletCircleObject(
-					new Vector2D<float>(
-						r.Next(-200, 200),
-						r.Next(-200, 200)),
-					r.Next(10, 20)));
+			GenerateGameObject();
 		}
+	}
+
+	private void GenerateGameObject()
+	{
+		verletObjects.Add(
+			new VerletCircleObject(
+				new Vector2D<float>(
+					r.Next(-200, 200),
+					r.Next(-200, 200)),
+				r.Next(10, 20)));
 	}
 
 	public void Unload()

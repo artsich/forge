@@ -1,13 +1,12 @@
 ﻿using Forge.Renderer.Components;
 using Forge.Renderer.Font;
-using Silk.NET.Input;
 using Silk.NET.Maths;
 
 namespace Forge.Renderer.Ui;
 
 public class TextLabel : UiElement
 {
-	private float fontSize;
+	private float fontSize = 11;
 	private readonly FontMetrics fontInfo;
 	private readonly FontRenderer renderer;
 
@@ -40,7 +39,7 @@ public class TextLabel : UiElement
 	public TextLabel(
 		FontMetrics fontInfo,
 		FontRenderer renderer,
-		Transform2d transform)
+		Transform2d? transform = null)
 		: base(transform)
 	{
 		this.fontInfo = fontInfo;
