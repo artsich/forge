@@ -47,13 +47,12 @@ public class FontRenderer : GraphicsResourceBase
 		char? lastChar = null;
 		foreach (var character in text.String)
 		{
-			if (metrics.TryGetGlyph(character, out var glyph))
+			if (metrics.TryGetGlyph(character, out var glyph) && glyph != null)
 			{
 				if (lastChar.HasValue)
 				{
 					position.X += metrics.GetKerning(lastChar.Value, character) * scaleFactor;
 				}
-
 				var characterComponent = new CharacterRenderComponent
 				{
 					Position = position + glyph.LayoutOffset * scaleFactor,

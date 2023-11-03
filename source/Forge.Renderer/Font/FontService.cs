@@ -63,7 +63,7 @@ public class FontService : IFontService
 
 		foreach (var glyphData in meta.Glyphs)
 		{
-			var glyph = ParseGlyph(glyphs, meta.Atlas, glyphData);
+			var glyph = ParseGlyph(meta.Atlas, glyphData);
 			glyphs[glyph.Character] = glyph;
 		}
 
@@ -93,8 +93,6 @@ public class FontService : IFontService
 
 		using (Image<Rgba32> image = Image.Load<Rgba32>(texturePath))
 		{
-			image.Mutate(ctx => ctx.Flip(FlipMode.Vertical));
-
 			textureData = new byte[image.Width * image.Height * 4];
 
 			for (int y = 0; y < image.Height; y++)
@@ -115,19 +113,30 @@ public class FontService : IFontService
 		return textureData;
 	}
 
-	private static Glyph ParseGlyph(Dictionary<char, Glyph> glyphs, Atlas atlas, GlyphInfo glyphData)
+	private static Glyph ParseGlyph(Atlas atlas, GlyphInfo glyphData)
 	{
 		var size = new Vector2D<float>(
 			glyphData.AtlasBounds.Right - glyphData.AtlasBounds.Left,
 			glyphData.AtlasBounds.Top - glyphData.AtlasBounds.Bottom);
+		size = Vector2D.Abs(size);
 
-		var layoutOffset = new Vector2D<float>(
-			glyphData.PlaneBounds.Left * atlas.Size,
-			glyphData.PlaneBounds.Bottom * atlas.Size);
+		Vector2D<float> layoutOffset;
+		if (atlas.YOrigin == "top")
+		{
+			layoutOffset = new Vector2D<float>(
+				glyphData.PlaneBounds.Left * atlas.Size,
+				-glyphData.PlaneBounds.Top * atlas.Size);
+		}
+		else
+		{
+			layoutOffset = new Vector2D<float>(
+				glyphData.PlaneBounds.Left * atlas.Size,
+				glyphData.PlaneBounds.Bottom * atlas.Size);
+		}
 
 		var uv = new Rectangle<float>(
 				glyphData.AtlasBounds.Left / atlas.Width,
-				glyphData.AtlasBounds.Bottom / atlas.Height,
+				glyphData.AtlasBounds.Top / atlas.Height,
 				size.X / atlas.Width,
 				size.Y / atlas.Height);
 
