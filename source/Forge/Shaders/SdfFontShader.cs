@@ -38,15 +38,22 @@ uniform sampler2D text;
 uniform vec3 textColor = vec3(1.0);
 
 const float width = 0.4;
-const float edge = 0.2;
+const float edge = 0.1;
+
+const int effect = 1;
 
 void main()
 {
-	float distanceRange = 2;
-    float distance = texture(text, TexCoords).r;
-    float alpha = smoothstep(width - edge, width + edge, distance);
-	
-	o_color = vec4(Color.xyz, alpha);
+	if (effect == 0) {
+		float distanceRange = 2;
+		float distance = texture(text, TexCoords).r;
+		float alpha = smoothstep(width - edge, width + edge, distance);
+
+		o_color = vec4(Color.xyz, alpha);
+	} 
+	else if (effect == 1) {
+		o_color = vec4(Color.xyz, 1.);
+	}
 }
 ";
 
