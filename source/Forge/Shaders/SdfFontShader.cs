@@ -37,8 +37,7 @@ out vec4 o_color;
 uniform sampler2D text;
 uniform vec3 textColor = vec3(1.0);
 
-const float width = 0.4;
-const float edge = 0.1;
+const float smoothing = 0.15;
 
 const int effect = 0;
 
@@ -47,7 +46,7 @@ void main()
 	if (effect == 0) {
 		float distanceRange = 2;
 		float distance = texture(text, TexCoords).r;
-		float alpha = smoothstep(width - edge, width + edge, distance);
+		float alpha = smoothstep(0.5 - smoothing, 0.5 + smoothing, distance);
 
 		o_color = vec4(Color.xyz, alpha);
 	} 

@@ -4,7 +4,7 @@ namespace Forge.Renderer.Font;
 
 public sealed class MsdfAtlasGen
 {
-	private const int DistanceRange = 128;
+	private const int DistanceRange = 2;
 	private const string YOrigin = "top";
 
 	private readonly string toolPath;
@@ -19,7 +19,7 @@ public sealed class MsdfAtlasGen
 		this.toolPath = toolPath;
 	}
 
-	public string GenerateAtlas(string fontPath, string savePath, int size = 512)
+	public string GenerateAtlas(string fontPath, string savePath, int size = 32)
 	{
 		var fontName = Path.GetFileNameWithoutExtension(fontPath);
 

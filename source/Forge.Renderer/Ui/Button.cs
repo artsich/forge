@@ -33,9 +33,10 @@ public class Button : UiElement
 			var pos = Transform.Position;
 
 			var min = pos;
-			var max = pos - size with {
+			var max = new Vector2D<float>()
+			{ 
 				X = pos.X + size.X + Padding.Left + Padding.Right,
-				Y = pos.Y - size.Y - (Padding.Top - Padding.Bottom)
+				Y = pos.Y - size.Y - (Padding.Top + Padding.Bottom)
 			};
 
 			return new Box2D<float>(

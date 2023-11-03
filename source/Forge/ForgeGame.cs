@@ -207,14 +207,14 @@ public unsafe class ForgeGame : ILayer
 				fontSprite.FontMetrics,
 				fontRenderer)
 			{
-				Text = "Open animator",
-				FontSize = 20f,
+				Text = "Animator",
+				FontSize = 21f,
 				Color = new Vector4D<float>(1f, 0f, 0f, 1f),
 			},
 			new Transform2d(new(-Width / 2f + 20, Height / 2f - 160)),
 			buttonsRenderer)
 		{
-			Color = new(0f, 1f, 0f, 1f),
+			Color = new(0f, 0f, 1f, 1f),
 			Padding = new(10, 10, 10, 10),
 		};
 
@@ -223,7 +223,7 @@ public unsafe class ForgeGame : ILayer
 				fontSprite.FontMetrics,
 				fontRenderer)
 			{
-				Text = "Add entities",
+				Text = "Add",
 				FontSize = 20f,
 				Color = new Vector4D<float>(1f, 0f, 0f, 1f),
 			},
@@ -244,7 +244,7 @@ public unsafe class ForgeGame : ILayer
 		uiElements = new(
 			fpsLabel,
 			zoomLabel,
-			//button,
+			button,
 			entitiesOnScreen,
 			mousePositionLabel,
 			addEntities
