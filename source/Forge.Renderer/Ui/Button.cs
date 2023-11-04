@@ -6,7 +6,7 @@ namespace Forge.Renderer.Ui;
 public class Button : UiElement
 {
 	private readonly TextLabel textLabel;
-	private readonly ButtonRenderer quadRenderer;
+	private readonly UiQuadRenderer quadRenderer;
 
 	public Vector4D<float> Color { get; set; }
 
@@ -14,8 +14,8 @@ public class Button : UiElement
 
 	public Button(
 		TextLabel textLabel,
-		Transform2d transform,
-		ButtonRenderer quadRenderer)
+		UiQuadRenderer quadRenderer,
+		Transform2d? transform=null)
 		: base(transform)
 	{
 		this.textLabel = textLabel;
@@ -34,7 +34,7 @@ public class Button : UiElement
 
 			var min = pos;
 			var max = new Vector2D<float>()
-			{ 
+			{
 				X = pos.X + size.X + Padding.Left + Padding.Right,
 				Y = pos.Y - size.Y - (Padding.Top + Padding.Bottom)
 			};

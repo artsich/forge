@@ -5,11 +5,16 @@ namespace Forge.Renderer.Ui;
 
 public record struct Offset(float Left = 0f, float Top = 0f, float Right = 0f, float Bottom = 0f)
 {
+	public Offset(float val)
+		: this(val, val, val, val)
+	{
+	}
+
 	public readonly Vector2D<float> LeftTop => new(Left, Top);
 
 	public readonly Vector2D<float> LeftBottom => new(Left, Bottom);
 
-	public readonly Vector2D<float> RightTop => new (Right, Top);
+	public readonly Vector2D<float> RightTop => new(Right, Top);
 }
 
 public abstract class UiElement
@@ -24,14 +29,14 @@ public abstract class UiElement
 
 	public Offset Padding { get; set; }
 
-	public UiElement(Transform2d? transform)
+	public UiElement(Transform2d? transform = null)
 	{
 		Transform = transform ?? new Transform2d();
 	}
 
 	internal abstract void Draw();
 
-	internal void OnMouseDown(Vector2D<float> pos, MouseButton button)
+	internal virtual void OnMouseDown(Vector2D<float> pos, MouseButton button)
 	{
 		OnClick?.Invoke(pos, button);
 	}

@@ -84,7 +84,7 @@ public unsafe class ForgeGame : ILayer
 	private CompiledShader quadShader;
 
 	private CircleRenderer circleRenderer;
-	private ButtonRenderer buttonsRenderer;
+	private UiQuadRenderer buttonsRenderer;
 
 	public void Load()
 	{
@@ -158,7 +158,7 @@ public unsafe class ForgeGame : ILayer
 		quadShader = new QuadShader().Compile() ?? throw new Exception("Shader compilation failed");
 
 		circleRenderer = new CircleRenderer();
-		buttonsRenderer = new ButtonRenderer(quadShader);
+		buttonsRenderer = new UiQuadRenderer(quadShader);
 
 		var fontSprite = assets.LoadFont("consola");
 
@@ -168,8 +168,9 @@ public unsafe class ForgeGame : ILayer
 
 		fpsLabel = new TextLabel(
 			fontSprite.FontMetrics,
-			fontRenderer,
-			new Transform2d(new (-Width / 2f + 20, Height / 2f - 20)))
+			fontRenderer
+			//new Transform2d(new (-Width / 2f + 20, Height / 2f - 20))
+			)
 		{
 			FontSize = 13f,
 			Color = new Vector4D<float>(1f, 0f, 0f, 1f),
@@ -177,8 +178,9 @@ public unsafe class ForgeGame : ILayer
 
 		zoomLabel = new TextLabel(
 			fontSprite.FontMetrics,
-			fontRenderer,
-			new Transform2d(new(-Width / 2f + 20, Height / 2f - 40)))
+			fontRenderer
+			//new Transform2d(new(-Width / 2f + 20, Height / 2f - 40))
+			)
 		{
 			FontSize = 13f,
 			Color = new Vector4D<float>(1f, 0f, 0f, 1f),
@@ -186,8 +188,9 @@ public unsafe class ForgeGame : ILayer
 
 		entitiesOnScreen = new TextLabel(
 			fontSprite.FontMetrics,
-			fontRenderer,
-			new Transform2d(new(-Width / 2f + 20, Height / 2f - 60)))
+			fontRenderer
+			//new Transform2d(new(-Width / 2f + 20, Height / 2f - 60))
+			)
 		{
 			FontSize = 13f,
 			Color = new Vector4D<float>(1f, 0f, 0f, 1f),
@@ -195,8 +198,9 @@ public unsafe class ForgeGame : ILayer
 
 		mousePositionLabel = new TextLabel(
 			fontSprite.FontMetrics,
-			fontRenderer,
-			new Transform2d(new(-Width / 2f + 20, Height / 2f - 80)))
+			fontRenderer
+			//new Transform2d(new(-Width / 2f + 20, Height / 2f - 80))
+			)
 		{
 			FontSize = 13f,
 			Color = new Vector4D<float>(1f, 0f, 0f, 1f),
@@ -211,8 +215,10 @@ public unsafe class ForgeGame : ILayer
 				FontSize = 21f,
 				Color = new Vector4D<float>(1f, 0f, 0f, 1f),
 			},
-			new Transform2d(new(-Width / 2f + 20, Height / 2f - 160)),
-			buttonsRenderer)
+			buttonsRenderer//
+						   //,
+			//new Transform2d(new(-Width / 2f + 20, Height / 2f - 160))
+			)
 		{
 			Color = new(0f, 0f, 1f, 1f),
 			Padding = new(10, 10, 10, 10),
@@ -227,13 +233,30 @@ public unsafe class ForgeGame : ILayer
 				FontSize = 20f,
 				Color = new Vector4D<float>(1f, 0f, 0f, 1f),
 			},
-			new Transform2d(new(-Width / 2f + 20, Height / 2f - 120)),
+//			new Transform2d(new(-Width / 2f + 20, Height / 2f - 120)),
 			buttonsRenderer)
 		{
 			Color = new(0f, 1f, 0f, 1f),
 			Padding = new(10, 10, 10, 10),
 		};
 
+		var container = new VerticalContainer(
+			buttonsRenderer,
+			10f)
+		{
+			Transform = new Transform2d(new Vector2D<float>(-Width / 2f + 20, Height / 2f - 20)),
+			Children = new()
+			{
+				fpsLabel,
+				zoomLabel,
+				entitiesOnScreen,
+				mousePositionLabel,
+				button,
+				addEntities
+			},
+			Color = new Vector4D<float>(1f, 1f, 1f, 0.5f),
+			Padding = new(10f)
+		};
 
 		zoomLabel.OnClick += (_, _) => Console.WriteLine("Clicked!");
 		fpsLabel.OnClick += (_, _) => Console.WriteLine("Clicked!");
@@ -242,12 +265,7 @@ public unsafe class ForgeGame : ILayer
 		addEntities.OnClick += (_, _) => GenerateGameObject();
 
 		uiElements = new(
-			fpsLabel,
-			zoomLabel,
-			button,
-			entitiesOnScreen,
-			mousePositionLabel,
-			addEntities
+			container
 		);
 
 		Engine.PrimaryMouse.MouseDown += (mouse, button) => uiElements.OnMouseDown(mapToCurrentWindowCoord(mouse.Position.X, mouse.Position.Y), button);

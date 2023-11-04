@@ -32,7 +32,7 @@ out vec4 FragColor;
 
 void main() {
 	vec2 uv = TexPos;
-	FragColor = vec4(Color.xyz, 1.);
+	FragColor = Color;
 }
 ";
 

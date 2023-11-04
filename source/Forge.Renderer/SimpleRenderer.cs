@@ -30,11 +30,11 @@ public class QuadRenderer : BatchRenderer<QuadVertex, QuadRenderComponent>
 	}
 }
 
-public class ButtonRenderer : BatchRenderer<QuadVertex, QuadRenderComponent>
+public class UiQuadRenderer : BatchRenderer<QuadVertex, QuadRenderComponent>
 {
 	private readonly CompiledShader shader;
 
-	public ButtonRenderer(CompiledShader shader)
+	public UiQuadRenderer(CompiledShader shader)
 		: base(
 			new QuadVertexLayout(),
 			new QuadAssembler(),
