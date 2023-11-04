@@ -254,7 +254,7 @@ public unsafe class ForgeGame : ILayer
 				button,
 				addEntities
 			},
-			Color = new Vector4D<float>(1f, 1f, 1f, 0.5f),
+			Color = new Vector4D<float>(0.1f, 0.1f, 0.1f, 0.5f),
 			Padding = new(10f)
 		};
 

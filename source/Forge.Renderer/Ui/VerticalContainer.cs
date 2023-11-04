@@ -49,8 +49,8 @@ public class VerticalContainer : UiElement
 			foreach (var child in Children)
 			{
 				var childAabb = child.Aabb;
-				xMax = MathF.Max(xMax, childAabb.Max.X);
-				ySize += childAabb.Max.Y - childAabb.Min.Y + distanceBtwElements;
+				xMax = MathF.Max(xMax, childAabb.Size.X);
+				ySize += childAabb.Size.Y + distanceBtwElements;
 			}
 
 			var min = Transform.Position;
