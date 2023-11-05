@@ -221,7 +221,7 @@ public unsafe class ForgeGame : ILayer
 			)
 		{
 			Color = new(0f, 0f, 1f, 1f),
-			Padding = new(10, 10, 10, 10),
+			Padding = new(10f),
 		};
 
 		var addEntities = new Renderer.Ui.Button(
@@ -237,7 +237,7 @@ public unsafe class ForgeGame : ILayer
 			buttonsRenderer)
 		{
 			Color = new(0f, 1f, 0f, 1f),
-			Padding = new(10, 10, 10, 10),
+			Padding = new(10f),
 		};
 
 		var container = new VerticalContainer(
@@ -255,7 +255,7 @@ public unsafe class ForgeGame : ILayer
 				addEntities
 			},
 			Color = new Vector4D<float>(0.1f, 0.1f, 0.1f, 0.5f),
-			Padding = new(10f, 0f, 10f, 0f)
+			Padding = new(10f)
 		};
 
 		container.OnClick += (_, _) => Console.WriteLine("Clicked on container!");

@@ -54,11 +54,8 @@ public class Button : UiElement
 				size,
 				Color));
 
-		var textAabb = textLabel.Aabb;
-		var textSize = Vector2D.Abs(textAabb.Max - textAabb.Min);
-
 		var paddedPosition = Transform.Position with { X = Transform.Position.X + Padding.Left };
-		paddedPosition.Y = Transform.Position.Y - textSize.Y - Padding.Top;
+		paddedPosition.Y = Transform.Position.Y - Padding.Top;
 
 		textLabel.Transform.Position = paddedPosition;
 		textLabel.Draw();

@@ -53,10 +53,15 @@ public class VerticalContainer : UiElement
 				ySize += childAabb.Size.Y + distanceBtwElements;
 			}
 
+			if (children.Count > 0)
+			{
+				ySize -= distanceBtwElements;
+			}
+
 			var min = Transform.Position;
 			var max = Transform.Position + new Vector2D<float>(
 				xMax + Padding.Left + Padding.Right,
-				-ySize - Padding.Top - Padding.Bottom);
+				-ySize - (Padding.Top + Padding.Bottom));
 
 			return new Box2D<float>(
 				Vector2D.Min(min, max),

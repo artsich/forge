@@ -31,10 +31,17 @@ public class TextLabel : UiElement
 	{
 		get
 		{
+			// todo: font Info can be cached??
 			var size = fontInfo.MeasureText(Text, FontSize);
-			return new Box2D<float>(Transform.Position, Transform.Position + size);
+			return new Box2D<float>(AdjustedPosition, AdjustedPosition + size);
 		}
 	}
+
+	// todo: this is a hack, fix this. Position should be the top left corner of the text, not the bottom left
+	private Vector2D<float> AdjustedPosition => Transform.Position with
+	{
+		Y = Transform.Position.Y - fontInfo.MeasureText(Text, FontSize).Y
+	};
 
 	public TextLabel(
 		FontMetrics fontInfo,
@@ -48,6 +55,6 @@ public class TextLabel : UiElement
 
 	internal override void Draw()
 	{
-		renderer.DrawText(new TextRenderComponent(Text, Transform.Position, FontSize, Color));
+		renderer.DrawText(new TextRenderComponent(Text, AdjustedPosition, FontSize, Color));
 	}
 }
