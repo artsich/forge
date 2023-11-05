@@ -178,11 +178,11 @@ public unsafe class ForgeGame : ILayer
 			{
 				Text = "Animations",
 				FontSize = 15f,
-				Color = new (1f, 0f, 0f, 1f),
+				Color = new (0.714f, 0.753f, 0.769f, 1.0f),
 			},
 			buttonsRenderer)
 		{
-			Color = new(0f, 0f, 0.7f, 1f),
+			Color = new(0.153f, 0.290f, 0.349f, 1.0f),
 			Padding = new(10f),
 		};
 
@@ -193,11 +193,11 @@ public unsafe class ForgeGame : ILayer
 			{
 				Text = "Add",
 				FontSize = 15f,
-				Color = new (1f, 0f, 0f, 1f),
+				Color = new (0.714f, 0.753f, 0.769f, 1.0f),
 			},
 			buttonsRenderer)
 		{
-			Color = new(0f, 0.8f, 0f, 1f),
+			Color = new(0.153f, 0.290f, 0.349f, 1.0f),
 			Padding = new(10f),
 		};
 
@@ -211,7 +211,7 @@ public unsafe class ForgeGame : ILayer
 				animationsButton,
 				addEntities
 			},
-			Color = new Vector4D<float>(0.1f, 0.1f, 0.1f, 0.5f),
+			Color = new Vector4D<float>(0.361f, 0.388f, 0.4f, 0.5f),
 			Padding = new(10f)
 		};
 
