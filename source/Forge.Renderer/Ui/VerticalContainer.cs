@@ -1,43 +1,12 @@
-﻿using Silk.NET.Input;
-using Silk.NET.Maths;
+﻿using Silk.NET.Maths;
 
 namespace Forge.Renderer.Ui;
 
-/*
-As a Developer I want to have H/V continer to be able to layout my UI elements
-
-I should be able to add elements to the container and have them be laid out vertically/horizontally
-I should be able to set distance between elements
-
-*/
-
-public class VerticalContainer : UiElement
+public class VerticalContainer : Container
 {
-	private readonly UiQuadRenderer uiQuadRenderer;
-	private readonly float distanceBtwElements;
-
-	private readonly List<UiElement> children = new();
-
-	public List<UiElement> Children {
-		private get 
-		{ 
-			return children;
-		}
-		init
-		{
-			children = value;
-			AdjustLayoutChildren();
-		}
-	}
-
-	public Vector4D<float> Color { get; set; }
-
-	public VerticalContainer(
-		UiQuadRenderer uiQuadRenderer,
-		float distanceBtwElements)
+	public VerticalContainer(UiQuadRenderer uiQuadRenderer, float distanceBtwElements)
+		: base(uiQuadRenderer, distanceBtwElements)
 	{
-		this.uiQuadRenderer = uiQuadRenderer;
-		this.distanceBtwElements = distanceBtwElements;
 	}
 
 	public override Box2D<float> Aabb
@@ -50,12 +19,12 @@ public class VerticalContainer : UiElement
 			{
 				var childAabb = child.Aabb;
 				xMax = MathF.Max(xMax, childAabb.Size.X);
-				ySize += childAabb.Size.Y + distanceBtwElements;
+				ySize += childAabb.Size.Y + DistanceBtwElements;
 			}
 
-			if (children.Count > 0)
+			if (Children.Count > 0)
 			{
-				ySize -= distanceBtwElements;
+				ySize -= DistanceBtwElements;
 			}
 
 			var min = Transform.Position;
@@ -69,59 +38,15 @@ public class VerticalContainer : UiElement
 		}
 	}
 
-	internal override void Draw()
-	{
-		var aabb = Aabb;
-		var size = Vector2D.Abs(aabb.Max - aabb.Min);
-
-		uiQuadRenderer.Push(new Components.QuadRenderComponent()
-		{
-			Color = Color,
-			Position = Transform.Position,
-			Size = size
-		});
-
-		AdjustLayoutChildren();
-
-		foreach (var child in Children)
-		{
-			child.Draw();
-		}
-	}
-
-	public void AddChild(UiElement child)
-	{
-		Children.Add(child);
-	}
-
-	private void AdjustLayoutChildren()
+	protected override void AdjustLayoutChildren()
 	{
 		Vector2D<float> currentPos = Transform.Position - (Padding.LeftTop * new Vector2D<float>(-1f, 1f));
 
-		foreach (var child in Children)
+		foreach (var child in this.Children)
 		{
 			child.Transform.Position = currentPos;
 			var childAabb = child.Aabb;
-			currentPos.Y -= childAabb.Max.Y - childAabb.Min.Y + distanceBtwElements;
-		}
-	}
-
-	internal override void OnMouseDown(Vector2D<float> pos, MouseButton button)
-	{
-		var processed = false;
-		foreach (var child in Children)
-		{
-			if (child.Aabb.Contains(pos))
-			{
-				child.OnMouseDown(pos, button);
-				processed = true;
-				break;
-			}
-		}
-
-		if (!processed)
-		{
-			base.OnMouseDown(pos, button);
+			currentPos.Y -= childAabb.Max.Y - childAabb.Min.Y + DistanceBtwElements;
 		}
 	}
 }

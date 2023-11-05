@@ -80,7 +80,7 @@ public unsafe class ForgeGame : ILayer
 	private TextLabel entitiesOnScreen;
 	private Renderer.Ui.Button button;
 	private TextLabel mousePositionLabel;
-	private UiRoot uiElements;
+	private UiRoot uiRoot;
 	private CompiledShader quadShader;
 
 	private CircleRenderer circleRenderer;
@@ -211,7 +211,7 @@ public unsafe class ForgeGame : ILayer
 				fontSprite.FontMetrics,
 				fontRenderer)
 			{
-				Text = "Animator",
+				Text = "Animations",
 				FontSize = 21f,
 				Color = new Vector4D<float>(1f, 0f, 0f, 1f),
 			},
@@ -220,7 +220,7 @@ public unsafe class ForgeGame : ILayer
 			//new Transform2d(new(-Width / 2f + 20, Height / 2f - 160))
 			)
 		{
-			Color = new(0f, 0f, 1f, 1f),
+			Color = new(0f, 0f, 0.7f, 1f),
 			Padding = new(10f),
 		};
 
@@ -236,7 +236,7 @@ public unsafe class ForgeGame : ILayer
 //			new Transform2d(new(-Width / 2f + 20, Height / 2f - 120)),
 			buttonsRenderer)
 		{
-			Color = new(0f, 1f, 0f, 1f),
+			Color = new(0f, 0.8f, 0f, 1f),
 			Padding = new(10f),
 		};
 
@@ -245,7 +245,7 @@ public unsafe class ForgeGame : ILayer
 			10f)
 		{
 			Transform = new Transform2d(new Vector2D<float>(-Width / 2f + 20, Height / 2f - 20)),
-			Children = new()
+			Children = new List<UiElement>()
 			{
 				fpsLabel,
 				zoomLabel,
@@ -258,22 +258,18 @@ public unsafe class ForgeGame : ILayer
 			Padding = new(10f)
 		};
 
-		container.OnClick += (_, _) => Console.WriteLine("Clicked on container!");
-
-		zoomLabel.OnClick += (_, _) => Console.WriteLine("Clicked zoom");
-		fpsLabel.OnClick += (_, _) => Console.WriteLine("Clicked fps label!");
-		button.OnClick += (_, _) => Console.WriteLine("Animation editor!");
-
+		zoomLabel.OnClick += (_, _) => Console.WriteLine("Clicked on zoom.");
+		fpsLabel.OnClick += (_, _) => Console.WriteLine("Clicked on fps label.");
+		button.OnClick += (_, _) => Console.WriteLine("Animation editor.");
+		container.OnClick += (_, _) => Console.WriteLine("Clicked on container.");
 		addEntities.OnClick += (_, _) => GenerateGameObject();
 
-		uiElements = new(
-			container
-		);
+		uiRoot = new(container);
 
-		Engine.PrimaryMouse.MouseDown += (mouse, button) => uiElements.OnMouseDown(mapToCurrentWindowCoord(mouse.Position.X, mouse.Position.Y), button);
+		Engine.PrimaryMouse.MouseDown += (mouse, button) => uiRoot.OnMouseDown(MapToCurrentWindowCoord(mouse.Position.X, mouse.Position.Y), button);
 	}
 
-	private Vector2D<float> mapToCurrentWindowCoord(float x, float y)
+	private Vector2D<float> MapToCurrentWindowCoord(float x, float y)
 	{
 		var xx = x / window.Size.X;
 		var yy = y / window.Size.Y;
@@ -316,17 +312,19 @@ public unsafe class ForgeGame : ILayer
 		fpsLabel.Text = $"FPS: {fps:0.000}";
 		zoomLabel.Text = $"Zoom scale: {camera2D.CurrentZoom:0.0000}";
 		entitiesOnScreen.Text = "Entities: " + verletObjects.Count;
-		var windowCoord = mapToCurrentWindowCoord((int)Engine.PrimaryMouse.Position.X, (int)Engine.PrimaryMouse.Position.Y);
+		var windowCoord = MapToCurrentWindowCoord((int)Engine.PrimaryMouse.Position.X, (int)Engine.PrimaryMouse.Position.Y);
 		var (x, y) = ((int)windowCoord.X, (int)windowCoord.Y);
 		mousePositionLabel.Text = $"Mouse pos: {x} : {y}";
 
-		uiElements.Draw();
+		uiRoot.Draw();
 
+		// Move ui render logic to ui root?
 		GraphicsDevice.Current.gl.Enable(GLEnum.Blend);
 		GraphicsDevice.Current.gl.BlendFunc(GLEnum.SrcAlpha, GLEnum.OneMinusSrcAlpha);
 		buttonsRenderer.Flush(uiCamera);
 		GraphicsDevice.Current.gl.Disable(GLEnum.Blend);
 
+		// Move ui render logic to ui root?
 		fontRenderer.Flush(uiCamera);
 
 		framebuffer.Unbind();
