@@ -78,7 +78,7 @@ public unsafe class ForgeGame : ILayer
 	private TextLabel fpsLabel;
 	private TextLabel zoomLabel;
 	private TextLabel entitiesOnScreen;
-	private Renderer.Ui.Button button;
+	private Renderer.Ui.Button animationsButton;
 	private TextLabel mousePositionLabel;
 	private UiRoot uiRoot;
 	private CompiledShader quadShader;
@@ -162,63 +162,25 @@ public unsafe class ForgeGame : ILayer
 
 		var fontSprite = assets.LoadFont("consola");
 
-		fontRenderer = new FontRenderer(
-			fontSprite,
-			new SdfFontShader());
+		fontRenderer = new FontRenderer(fontSprite, new SdfFontShader());
 
-		fpsLabel = new TextLabel(
-			fontSprite.FontMetrics,
-			fontRenderer
-			//new Transform2d(new (-Width / 2f + 20, Height / 2f - 20))
-			)
+		fpsLabel = new TextLabel(fontSprite.FontMetrics, fontRenderer)
 		{
-			FontSize = 13f,
-			Color = new Vector4D<float>(1f, 0f, 0f, 1f),
+			Color = new (1f, 0f, 0f, 1f),
 		};
 
-		zoomLabel = new TextLabel(
-			fontSprite.FontMetrics,
-			fontRenderer
-			//new Transform2d(new(-Width / 2f + 20, Height / 2f - 40))
-			)
-		{
-			FontSize = 13f,
-			Color = new Vector4D<float>(1f, 0f, 0f, 1f),
-		};
+		zoomLabel = new TextLabel(fontSprite.FontMetrics, fontRenderer);
+		entitiesOnScreen = new TextLabel(fontSprite.FontMetrics, fontRenderer);
+		mousePositionLabel = new TextLabel(fontSprite.FontMetrics, fontRenderer);
 
-		entitiesOnScreen = new TextLabel(
-			fontSprite.FontMetrics,
-			fontRenderer
-			//new Transform2d(new(-Width / 2f + 20, Height / 2f - 60))
-			)
-		{
-			FontSize = 13f,
-			Color = new Vector4D<float>(1f, 0f, 0f, 1f),
-		};
-
-		mousePositionLabel = new TextLabel(
-			fontSprite.FontMetrics,
-			fontRenderer
-			//new Transform2d(new(-Width / 2f + 20, Height / 2f - 80))
-			)
-		{
-			FontSize = 13f,
-			Color = new Vector4D<float>(1f, 0f, 0f, 1f),
-		};
-
-		button = new(
-			new TextLabel(
-				fontSprite.FontMetrics,
-				fontRenderer)
+		animationsButton = new(
+			new TextLabel(fontSprite.FontMetrics, fontRenderer)
 			{
 				Text = "Animations",
-				FontSize = 21f,
-				Color = new Vector4D<float>(1f, 0f, 0f, 1f),
+				FontSize = 15f,
+				Color = new (1f, 0f, 0f, 1f),
 			},
-			buttonsRenderer//
-						   //,
-			//new Transform2d(new(-Width / 2f + 20, Height / 2f - 160))
-			)
+			buttonsRenderer)
 		{
 			Color = new(0f, 0f, 0.7f, 1f),
 			Padding = new(10f),
@@ -230,29 +192,40 @@ public unsafe class ForgeGame : ILayer
 				fontRenderer)
 			{
 				Text = "Add",
-				FontSize = 20f,
-				Color = new Vector4D<float>(1f, 0f, 0f, 1f),
+				FontSize = 15f,
+				Color = new (1f, 0f, 0f, 1f),
 			},
-//			new Transform2d(new(-Width / 2f + 20, Height / 2f - 120)),
 			buttonsRenderer)
 		{
 			Color = new(0f, 0.8f, 0f, 1f),
 			Padding = new(10f),
 		};
 
-		var container = new VerticalContainer(
+		var actionsContainer = new VerticalContainer(
 			buttonsRenderer,
 			10f)
 		{
 			Transform = new Transform2d(new Vector2D<float>(-Width / 2f + 20, Height / 2f - 20)),
 			Children = new List<UiElement>()
 			{
-				fpsLabel,
-				zoomLabel,
+				animationsButton,
+				addEntities
+			},
+			Color = new Vector4D<float>(0.1f, 0.1f, 0.1f, 0.5f),
+			Padding = new(10f)
+		};
+
+		var systemInfoContainer = new HorizontalContainer(
+			buttonsRenderer,
+			10f)
+		{
+			Transform = new Transform2d(new Vector2D<float>(-Width / 2f + 20, -Height / 2f + 50)),
+			Children = new List<UiElement>()
+			{
 				entitiesOnScreen,
 				mousePositionLabel,
-				button,
-				addEntities
+				zoomLabel,
+				fpsLabel,
 			},
 			Color = new Vector4D<float>(0.1f, 0.1f, 0.1f, 0.5f),
 			Padding = new(10f)
@@ -260,11 +233,12 @@ public unsafe class ForgeGame : ILayer
 
 		zoomLabel.OnClick += (_, _) => Console.WriteLine("Clicked on zoom.");
 		fpsLabel.OnClick += (_, _) => Console.WriteLine("Clicked on fps label.");
-		button.OnClick += (_, _) => Console.WriteLine("Animation editor.");
-		container.OnClick += (_, _) => Console.WriteLine("Clicked on container.");
+		animationsButton.OnClick += (_, _) => Console.WriteLine("Animation editor.");
+		actionsContainer.OnClick += (_, _) => Console.WriteLine("Clicked on action container.");
+		systemInfoContainer.OnClick += (_, _) => Console.WriteLine("Clicked on system info container.");
 		addEntities.OnClick += (_, _) => GenerateGameObject();
 
-		uiRoot = new(container);
+		uiRoot = new(actionsContainer, systemInfoContainer);
 
 		Engine.PrimaryMouse.MouseDown += (mouse, button) => uiRoot.OnMouseDown(MapToCurrentWindowCoord(mouse.Position.X, mouse.Position.Y), button);
 	}

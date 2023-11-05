@@ -2,9 +2,9 @@
 
 namespace Forge.Renderer.Ui;
 
-public class VerticalContainer : Container
+public class HorizontalContainer : Container
 {
-	public VerticalContainer(UiQuadRenderer uiQuadRenderer, float distanceBtwElements)
+	public HorizontalContainer(UiQuadRenderer uiQuadRenderer, float distanceBtwElements)
 		: base(uiQuadRenderer, distanceBtwElements)
 	{
 	}
@@ -18,18 +18,18 @@ public class VerticalContainer : Container
 			foreach (var child in Children)
 			{
 				var childAabb = child.Aabb;
-				width = MathF.Max(width, childAabb.Size.X);
-				height += childAabb.Size.Y + DistanceBtwElements;
+				width += childAabb.Size.X + DistanceBtwElements;
+				height = MathF.Max(height, childAabb.Size.Y) ;
 			}
 
 			if (Children.Count > 0)
 			{
-				height -= DistanceBtwElements;
+				width -= DistanceBtwElements;
 			}
 
 			var min = Transform.Position;
 			var max = Transform.Position + new Vector2D<float>(
-				width + Padding.Left + Padding.Right,
+				width + (Padding.Left + Padding.Right),
 				-height - (Padding.Top + Padding.Bottom));
 
 			return new Box2D<float>(
@@ -46,7 +46,7 @@ public class VerticalContainer : Container
 		{
 			child.Transform.Position = currentPos;
 			var childAabb = child.Aabb;
-			currentPos.Y -= childAabb.Size.Y + DistanceBtwElements;
+			currentPos.X += childAabb.Size.X + DistanceBtwElements;
 		}
 	}
 }

@@ -6,7 +6,7 @@ namespace Forge.Renderer.Ui;
 
 public class TextLabel : UiElement
 {
-	private float fontSize = 11;
+	private float fontSize = 13;
 	private readonly FontMetrics fontInfo;
 	private readonly FontRenderer renderer;
 
