@@ -56,7 +56,7 @@ public class VerticalContainer : UiElement
 			var min = Transform.Position;
 			var max = Transform.Position + new Vector2D<float>(
 				xMax + Padding.Left + Padding.Right,
-				ySize + Padding.Top + Padding.Bottom);
+				-ySize - Padding.Top - Padding.Bottom);
 
 			return new Box2D<float>(
 				Vector2D.Min(min, max),
@@ -106,10 +106,9 @@ public class VerticalContainer : UiElement
 		var processed = false;
 		foreach (var child in Children)
 		{
-			var localPos = child.Transform.Position;
-			if (child.Aabb.Contains(localPos))
+			if (child.Aabb.Contains(pos))
 			{
-				child.OnMouseDown(localPos, button);
+				child.OnMouseDown(pos, button);
 				processed = true;
 				break;
 			}

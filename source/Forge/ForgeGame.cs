@@ -255,11 +255,13 @@ public unsafe class ForgeGame : ILayer
 				addEntities
 			},
 			Color = new Vector4D<float>(0.1f, 0.1f, 0.1f, 0.5f),
-			Padding = new(10f)
+			Padding = new(10f, 0f, 10f, 0f)
 		};
 
-		zoomLabel.OnClick += (_, _) => Console.WriteLine("Clicked!");
-		fpsLabel.OnClick += (_, _) => Console.WriteLine("Clicked!");
+		container.OnClick += (_, _) => Console.WriteLine("Clicked on container!");
+
+		zoomLabel.OnClick += (_, _) => Console.WriteLine("Clicked zoom");
+		fpsLabel.OnClick += (_, _) => Console.WriteLine("Clicked fps label!");
 		button.OnClick += (_, _) => Console.WriteLine("Animation editor!");
 
 		addEntities.OnClick += (_, _) => GenerateGameObject();
