@@ -45,6 +45,16 @@ public class TextLabel : UiElement
 
 	public TextLabel(
 		FontMetrics fontInfo,
+		Transform2d? transform = null)
+		: this(
+			fontInfo,
+			UiRenderContext.Instance!.FontRenderer,
+			transform)
+	{
+	}
+
+	public TextLabel(
+		FontMetrics fontInfo,
 		FontRenderer renderer,
 		Transform2d? transform = null)
 		: base(transform)

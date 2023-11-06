@@ -18,6 +18,8 @@ public class UiRoot
 		{
 			element.Draw();
 		}
+
+		UiRenderContext.Flush();
 	}
 
 	public void OnMouseDown(Vector2D<float> pos, MouseButton button)
