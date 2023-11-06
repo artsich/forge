@@ -151,21 +151,19 @@ public unsafe class ForgeGame : ILayer
 
 		solver = new VerletSolver(verletObjects, verletLinks);
 		circleRenderer = new CircleRenderer();
+		uiRoot = new UiRoot(new UiSettings(Width, Height, assets.LoadFont("consola")));
 
-		var fontSprite = assets.LoadFont("consola");
-		UiRenderContext.Init(Width, Height, fontSprite);
-
-		fpsLabel = new TextLabel(fontSprite.FontMetrics)
+		fpsLabel = new TextLabel()
 		{
 			Color = new (1f, 0f, 0f, 1f),
 		};
 
-		zoomLabel = new TextLabel(fontSprite.FontMetrics);
-		entitiesOnScreen = new TextLabel(fontSprite.FontMetrics);
-		mousePositionLabel = new TextLabel(fontSprite.FontMetrics);
+		zoomLabel = new TextLabel();
+		entitiesOnScreen = new TextLabel();
+		mousePositionLabel = new TextLabel();
 
 		animationsButton = new(
-			new TextLabel(fontSprite.FontMetrics)
+			new TextLabel()
 			{
 				Text = "Animations",
 				FontSize = 15f,
@@ -177,7 +175,7 @@ public unsafe class ForgeGame : ILayer
 		};
 
 		var addEntities = new Renderer.Ui.Button(
-			new TextLabel(fontSprite.FontMetrics)
+			new TextLabel()
 			{
 				Text = "Add",
 				FontSize = 15f,
@@ -221,7 +219,7 @@ public unsafe class ForgeGame : ILayer
 		systemInfoContainer.OnClick += (_, _) => Console.WriteLine("Clicked on system info container.");
 		addEntities.OnClick += (_, _) => GenerateGameObject();
 
-		uiRoot = new(actionsContainer, systemInfoContainer);
+		uiRoot.AddChilds(actionsContainer, systemInfoContainer);
 
 		Engine.PrimaryMouse.MouseDown += (mouse, button) => uiRoot.OnMouseDown(MapToCurrentWindowCoord(mouse.Position.X, mouse.Position.Y), button);
 	}

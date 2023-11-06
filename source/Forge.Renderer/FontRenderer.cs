@@ -15,6 +15,8 @@ public class FontRenderer : GraphicsResourceBase
 	private readonly CompiledShader shader;
 	private readonly BatchRenderer<GlyphVertex, CharacterRenderComponent> batchRenderer;
 
+	public SpriteFont SpriteFont => fontSprite;
+
 	public FontRenderer(SpriteFont fontSprite, ShaderSources shader)
 		: this(
 			fontSprite,

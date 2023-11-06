@@ -43,23 +43,19 @@ public class TextLabel : UiElement
 		Y = Transform.Position.Y - fontInfo.MeasureText(Text, FontSize).Y
 	};
 
-	public TextLabel(
-		FontMetrics fontInfo,
-		Transform2d? transform = null)
+	public TextLabel(Transform2d? transform = null)
 		: this(
-			fontInfo,
 			UiRenderContext.Instance!.FontRenderer,
 			transform)
 	{
 	}
 
 	public TextLabel(
-		FontMetrics fontInfo,
 		FontRenderer renderer,
 		Transform2d? transform = null)
 		: base(transform)
 	{
-		this.fontInfo = fontInfo;
+		fontInfo = renderer.SpriteFont.FontMetrics;
 		this.renderer = renderer;
 	}
 
