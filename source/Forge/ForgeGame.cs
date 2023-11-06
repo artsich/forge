@@ -38,7 +38,6 @@ public unsafe class ForgeGame : ILayer
 	private static CompiledShader PostProcessingShader;
 
 	private readonly CameraData gameCamera = new(Matrix4X4.CreateOrthographic(Width, Height, 0.1f, 100.0f));
-	private readonly CameraData uiCamera = new(Matrix4X4.CreateOrthographic(Width, Height, 0.1f, 100.0f));
 
 	private Camera2DController camera2D;
 
@@ -47,8 +46,7 @@ public unsafe class ForgeGame : ILayer
 	private FrameBuffer framebuffer;
 	private FrameBuffer defaultFb;
 
-	private float[] quadVertices = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
-		// positions // texCoords
+	private float[] quadVertices = {
 		-1.0f,  1.0f, 0.0f, 1.0f,
 		-1.0f, -1.0f, 0.0f, 0.0f,
 		 1.0f, -1.0f, 1.0f, 0.0f,
@@ -69,7 +67,6 @@ public unsafe class ForgeGame : ILayer
 
 	private readonly Random r = new();
 
-	private FontRenderer fontRenderer;
 	private float timer;
 	private float fps;
 
@@ -81,10 +78,8 @@ public unsafe class ForgeGame : ILayer
 	private Renderer.Ui.Button animationsButton;
 	private TextLabel mousePositionLabel;
 	private UiRoot uiRoot;
-	private CompiledShader quadShader;
 
 	private CircleRenderer circleRenderer;
-	private UiQuadRenderer buttonsRenderer;
 
 	public void Load()
 	{
@@ -155,55 +150,45 @@ public unsafe class ForgeGame : ILayer
 		};
 
 		solver = new VerletSolver(verletObjects, verletLinks);
-		quadShader = new QuadShader().Compile() ?? throw new Exception("Shader compilation failed");
-
 		circleRenderer = new CircleRenderer();
-		buttonsRenderer = new UiQuadRenderer(quadShader);
 
 		var fontSprite = assets.LoadFont("consola");
+		UiRenderContext.Init(Width, Height, fontSprite);
 
-		fontRenderer = new FontRenderer(fontSprite, new SdfFontShader());
-
-		fpsLabel = new TextLabel(fontSprite.FontMetrics, fontRenderer)
+		fpsLabel = new TextLabel(fontSprite.FontMetrics)
 		{
 			Color = new (1f, 0f, 0f, 1f),
 		};
 
-		zoomLabel = new TextLabel(fontSprite.FontMetrics, fontRenderer);
-		entitiesOnScreen = new TextLabel(fontSprite.FontMetrics, fontRenderer);
-		mousePositionLabel = new TextLabel(fontSprite.FontMetrics, fontRenderer);
+		zoomLabel = new TextLabel(fontSprite.FontMetrics);
+		entitiesOnScreen = new TextLabel(fontSprite.FontMetrics);
+		mousePositionLabel = new TextLabel(fontSprite.FontMetrics);
 
 		animationsButton = new(
-			new TextLabel(fontSprite.FontMetrics, fontRenderer)
+			new TextLabel(fontSprite.FontMetrics)
 			{
 				Text = "Animations",
 				FontSize = 15f,
 				Color = new (0.714f, 0.753f, 0.769f, 1.0f),
-			},
-			buttonsRenderer)
+			})
 		{
 			Color = new(0.153f, 0.290f, 0.349f, 1.0f),
 			Padding = new(10f),
 		};
 
 		var addEntities = new Renderer.Ui.Button(
-			new TextLabel(
-				fontSprite.FontMetrics,
-				fontRenderer)
+			new TextLabel(fontSprite.FontMetrics)
 			{
 				Text = "Add",
 				FontSize = 15f,
 				Color = new (0.714f, 0.753f, 0.769f, 1.0f),
-			},
-			buttonsRenderer)
+			})
 		{
 			Color = new(0.153f, 0.290f, 0.349f, 1.0f),
 			Padding = new(10f),
 		};
 
-		var actionsContainer = new VerticalContainer(
-			buttonsRenderer,
-			10f)
+		var actionsContainer = new VerticalContainer()
 		{
 			Transform = new Transform2d(new Vector2D<float>(-Width / 2f + 20, Height / 2f - 20)),
 			Children = new List<UiElement>()
@@ -215,9 +200,7 @@ public unsafe class ForgeGame : ILayer
 			Padding = new(10f)
 		};
 
-		var systemInfoContainer = new HorizontalContainer(
-			buttonsRenderer,
-			10f)
+		var systemInfoContainer = new HorizontalContainer()
 		{
 			Transform = new Transform2d(new Vector2D<float>(-Width / 2f + 20, -Height / 2f + 50)),
 			Children = new List<UiElement>()
@@ -273,9 +256,6 @@ public unsafe class ForgeGame : ILayer
 		}
 		circleRenderer.Flush();
 
-		quadShader.Bind();
-		quadShader["cameraViewProj"].SetValue(gameCamera.ViewProjection);
-
 		timer += delta;
 		if (timer > 1)
 		{
@@ -291,15 +271,6 @@ public unsafe class ForgeGame : ILayer
 		mousePositionLabel.Text = $"Mouse pos: {x} : {y}";
 
 		uiRoot.Draw();
-
-		// Move ui render logic to ui root?
-		GraphicsDevice.Current.gl.Enable(GLEnum.Blend);
-		GraphicsDevice.Current.gl.BlendFunc(GLEnum.SrcAlpha, GLEnum.OneMinusSrcAlpha);
-		buttonsRenderer.Flush(uiCamera);
-		GraphicsDevice.Current.gl.Disable(GLEnum.Blend);
-
-		// Move ui render logic to ui root?
-		fontRenderer.Flush(uiCamera);
 
 		framebuffer.Unbind();
 

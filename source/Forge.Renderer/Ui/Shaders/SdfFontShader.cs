@@ -4,7 +4,7 @@ using Silk.NET.OpenGL;
 
 namespace Forge.Shaders;
 
-internal class SdfFontShader : ShaderSources
+public class SdfFontShader : ShaderSources
 {
 	private const string Vertex = @"
 #version 330 core

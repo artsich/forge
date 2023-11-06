@@ -4,7 +4,7 @@ using Silk.NET.OpenGL;
 
 namespace Forge.Shaders;
 
-internal class QuadShader : ShaderSources
+public class QuadShader : ShaderSources
 {
 	private const string Vertex =
 @"

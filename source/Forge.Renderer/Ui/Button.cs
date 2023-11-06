@@ -12,10 +12,15 @@ public class Button : UiElement
 
 	public Vector2D<float> Size { get; set; }
 
+	public Button(TextLabel textLabel, Transform2d? transform = null)
+		: this(textLabel, UiRenderContext.Instance!.QuadRenderer, transform)
+	{
+	}
+
 	public Button(
 		TextLabel textLabel,
 		UiQuadRenderer quadRenderer,
-		Transform2d? transform=null)
+		Transform2d? transform = null)
 		: base(transform)
 	{
 		this.textLabel = textLabel;

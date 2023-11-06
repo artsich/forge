@@ -7,18 +7,20 @@ public abstract class Container : UiElement
 {
 	private readonly UiQuadRenderer uiQuadRenderer;
 
-	public float DistanceBtwElements { get; set;}
+	public float DistanceBtwElements { get; set; } = 10f;
 
 	public IList<UiElement> Children { get; set; } = new List<UiElement>();
 
 	public Vector4D<float> Color { get; set; }
 
-	public Container(
-		UiQuadRenderer uiQuadRenderer,
-		float distanceBtwElements)
+	public Container()
+		: this(UiRenderContext.Instance!.QuadRenderer)
+	{
+	}
+
+	public Container(UiQuadRenderer uiQuadRenderer)
 	{
 		this.uiQuadRenderer = uiQuadRenderer;
-		DistanceBtwElements = distanceBtwElements;
 	}
 
 	internal override void Draw()

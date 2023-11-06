@@ -4,11 +4,6 @@ namespace Forge.Renderer.Ui;
 
 public class HorizontalContainer : Container
 {
-	public HorizontalContainer(UiQuadRenderer uiQuadRenderer, float distanceBtwElements)
-		: base(uiQuadRenderer, distanceBtwElements)
-	{
-	}
-
 	public override Box2D<float> Aabb
 	{
 		get
