@@ -8,7 +8,7 @@ public class QuadShader : ShaderSources
 {
 	private const string Vertex =
 @"
-#version 410 core
+#version 330 core
 layout (location = 1) in vec2 vTexPos; 
 layout (location = 2) in vec3 vPosition;
 layout (location = 3) in vec4 vColor;
@@ -26,6 +26,7 @@ void main() {
 ";
 	private const string Fragment =
 @"
+#version 330 core
 in vec4 Color;
 in vec2 TexPos;
 out vec4 FragColor;
