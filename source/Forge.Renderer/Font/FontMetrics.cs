@@ -1,5 +1,4 @@
 ﻿using Silk.NET.Maths;
-using System.Runtime.CompilerServices;
 
 namespace Forge.Renderer.Font;
 
@@ -11,11 +10,23 @@ public sealed class FontMetrics
 
 	public float Size { get; }
 
+	private float MaxX { get; }
+
+	private float MaxY { get; }
+
 	public FontMetrics(float size, IReadOnlyDictionary<KerningKey, float> kerningPairs, IReadOnlyDictionary<char, Glyph> glyphs)
 	{
 		Size = size;
 		this.kerningPairs = kerningPairs;
 		this.glyphs = glyphs;
+		MaxX = glyphs.Max(x => x.Value.Size.X);
+		MaxY = glyphs.Max(x => x.Value.Size.Y);
+	}
+
+	public Vector2D<float> GetScaledSize(float fontSize)
+	{
+		var scaleFactor = fontSize / Size;
+		return new(MaxX * scaleFactor, MaxY * scaleFactor);
 	}
 
 	public bool TryGetGlyph(char character, out Glyph? glyph)
@@ -35,7 +46,7 @@ public sealed class FontMetrics
 	public Vector2D<float> MeasureText(string text, float scale)
 	{
 		var width = 0f;
-		var height = 0f;
+		var height = 0f; // todo: i can you maxY here
 		var scaleFactor = scale / Size;
 
 		char? lastChar = null;

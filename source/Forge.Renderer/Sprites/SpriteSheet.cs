@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace Forge.Renderer.Sprites;
 
-public class SpriteSheet
+public sealed class SpriteSheet
 {
 	private readonly string pathToSheet;
 	private readonly string pathToMeta;

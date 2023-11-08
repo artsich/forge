@@ -4,6 +4,7 @@ namespace Forge.Renderer.Components;
 
 public readonly struct TextRenderComponent
 {
+	// todo: I think this should be an array of chars
 	public readonly string String;
 	public readonly float Scale;
 	public readonly Vector2D<float> Position;

@@ -186,13 +186,22 @@ public unsafe class ForgeGame : ILayer
 			Padding = new(10f),
 		};
 
+		var textBox = new Input()
+		{
+			Color = new Vector4D<float>(0.1f, 0.1f, 0.1f, 0.5f),
+			TextColor = new Vector4D<float>(1f),
+			Padding = new(10f),
+			Size = new(100f, 0f),
+		};
+
 		var actionsContainer = new VerticalContainer()
 		{
 			Transform = new Transform2d(new Vector2D<float>(-Width / 2f + 20, Height / 2f - 20)),
 			Children = new List<UiElement>()
 			{
 				animationsButton,
-				addEntities
+				addEntities,
+				textBox
 			},
 			Color = new Vector4D<float>(0.361f, 0.388f, 0.4f, 0.5f),
 			Padding = new(10f)
@@ -223,10 +232,14 @@ public unsafe class ForgeGame : ILayer
 
 		actionsContainer.OnFocus += () => Console.WriteLine("Actions container focused.");
 		actionsContainer.OnUnfocus += () => Console.WriteLine("Actions container out focused.");
+		
+		textBox.OnFocus += () => Console.WriteLine("Textbox focused.");
+		textBox.OnUnfocus += () => Console.WriteLine("Textbox out focused.");
 
 		uiRoot.AddChilds(actionsContainer, systemInfoContainer);
 
 		Engine.PrimaryMouse.MouseDown += (mouse, button) => uiRoot.OnMouseDown(MapToCurrentWindowCoord(mouse.Position.X, mouse.Position.Y), button);
+		Engine.PrimaryKeyboard.KeyDown += (keyboard, key, _) => uiRoot.OnKeyDown(key);
 	}
 
 	private Vector2D<float> MapToCurrentWindowCoord(float x, float y)
