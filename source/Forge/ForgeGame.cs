@@ -218,6 +218,11 @@ public unsafe class ForgeGame : ILayer
 		actionsContainer.OnClick += (_, _) => Console.WriteLine("Clicked on action container.");
 		systemInfoContainer.OnClick += (_, _) => Console.WriteLine("Clicked on system info container.");
 		addEntities.OnClick += (_, _) => GenerateGameObject();
+		addEntities.OnFocus += () => Console.WriteLine("Add entities button focused.");
+		addEntities.OnUnfocus += () => Console.WriteLine("Add entities button out focused.");
+
+		actionsContainer.OnFocus += () => Console.WriteLine("Actions container focused.");
+		actionsContainer.OnUnfocus += () => Console.WriteLine("Actions container out focused.");
 
 		uiRoot.AddChilds(actionsContainer, systemInfoContainer);
 
