@@ -193,7 +193,7 @@ public unsafe class ForgeGame : ILayer
 			Color = new Vector4D<float>(0.1f, 0.1f, 0.1f, 0.5f),
 			TextColor = new Vector4D<float>(1f),
 			Padding = new(10f),
-			Width = 100f,
+			Width = 200f,
 		};
 
 		var actionsContainer = new VerticalContainer()

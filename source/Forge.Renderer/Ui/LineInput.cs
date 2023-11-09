@@ -126,7 +126,107 @@ public class LineInput : UiElement
 				cursorIndex++;
 			}
 
-			HandleCursorMoving(key);
+			HandleCursorMoving(key, keyboard.IsKeyPressed(Key.ControlLeft));
+		}
+	}
+
+	private void HandleCursorMoving(Key key, bool leftCtrl)
+	{
+		switch (key)
+		{
+			case Key.Left:
+				{
+					MoveCursorLeft(leftCtrl);
+					break;
+				}
+			case Key.Right:
+				{
+					MoveCursorRight(leftCtrl);
+					break;
+				}
+			case Key.Home:
+				{
+					cursorIndex = 0;
+					break;
+				}
+			case Key.End:
+				{
+					cursorIndex = Text.Length;
+					break;
+				}
+			case Key.Delete:
+				{
+					if (cursorIndex < Text.Length)
+					{
+						Text = Text.Remove(cursorIndex, 1);
+					}
+					break;
+				}
+			case Key.Backspace:
+				{
+					if (Text.Length > 0 && cursorIndex > 0)
+					{
+						Text = Text.Remove(cursorIndex - 1, 1);
+						cursorIndex--;
+					}
+					break;
+				}
+		}
+	}
+
+	private void MoveCursorRight(bool leftCtrl)
+	{
+		if (leftCtrl)
+		{
+			MoveCursorToRightWord();
+		}
+		else
+		{
+			cursorIndex = Min(cursorIndex + 1, Text.Length);
+		}
+	}
+
+	private void MoveCursorToRightWord()
+	{
+		if (cursorIndex < Text.Length && Text[cursorIndex] == ' ')
+		{
+			while (++cursorIndex < Text.Length && Text[cursorIndex] == ' ') { }
+		}
+		while (cursorIndex < Text.Length)
+		{
+			if (Text[cursorIndex] == ' ')
+			{
+				break;
+			}
+			cursorIndex++;
+		}
+	}
+
+	private void MoveCursorLeft(bool leftCtrl)
+	{
+		if (leftCtrl)
+		{
+			MoveCursorToLeftWord();
+		}
+		else
+		{
+			cursorIndex = Max(cursorIndex - 1, 0);
+		}
+	}
+
+	private void MoveCursorToLeftWord()
+	{
+		if (cursorIndex > 0 && Text[cursorIndex - 1] == ' ')
+		{
+			while (--cursorIndex > 0 && Text[cursorIndex] == ' ') { }
+		}
+		while (cursorIndex > 0)
+		{
+			if (Text[cursorIndex - 1] == ' ')
+			{
+				break;
+			}
+			cursorIndex--;
 		}
 	}
 
@@ -151,41 +251,6 @@ public class LineInput : UiElement
 		}
 
 		endTextWindowIndex = Min(startTextWindowIndex + availableSimbols, Text.Length);
-	}
-
-	private void HandleCursorMoving(Key key)
-	{
-		if (key == Key.Left)
-		{
-			cursorIndex = Max(cursorIndex - 1, 0);
-		}
-		else if (key == Key.Right)
-		{
-			cursorIndex = Min(cursorIndex + 1, Text.Length);
-		}
-		else if (key == Key.Home)
-		{
-			cursorIndex = 0;
-		}
-		else if (key == Key.End)
-		{
-			cursorIndex = Text.Length;
-		}
-		else if (key == Key.Delete)
-		{
-			if (cursorIndex < Text.Length)
-			{
-				Text = Text.Remove(cursorIndex, 1);
-			}
-		}
-		else if (key == Key.Backspace)
-		{
-			if (Text.Length > 0 && cursorIndex > 0)
-			{
-				Text = Text.Remove(cursorIndex - 1, 1);
-				cursorIndex--;
-			}
-		}
 	}
 
 #pragma warning disable CA1416 // Validate platform compatibility
