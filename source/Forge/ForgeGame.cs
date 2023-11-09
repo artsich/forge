@@ -151,7 +151,9 @@ public unsafe class ForgeGame : ILayer
 
 		solver = new VerletSolver(verletObjects, verletLinks);
 		circleRenderer = new CircleRenderer();
-		uiRoot = new UiRoot(new UiSettings(Width, Height, assets.LoadFont("consola")));
+		uiRoot = new UiRoot(
+			new UiSettings(Width, Height, assets.LoadFont("consola")),
+			Engine.PrimaryKeyboard);
 
 		fpsLabel = new TextLabel()
 		{
@@ -239,7 +241,7 @@ public unsafe class ForgeGame : ILayer
 		uiRoot.AddChilds(actionsContainer, systemInfoContainer);
 
 		Engine.PrimaryMouse.MouseDown += (mouse, button) => uiRoot.OnMouseDown(MapToCurrentWindowCoord(mouse.Position.X, mouse.Position.Y), button);
-		Engine.PrimaryKeyboard.KeyDown += (keyboard, key, _) => uiRoot.OnKeyDown(key);
+		Engine.PrimaryKeyboard.KeyDown += (keyboard, key, what) => uiRoot.OnKeyDown(key);
 	}
 
 	private Vector2D<float> MapToCurrentWindowCoord(float x, float y)

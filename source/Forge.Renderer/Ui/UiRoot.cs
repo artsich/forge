@@ -26,10 +26,13 @@ public class UiRoot
 
 	private UiElement? focusedElement = null;
 
-	public UiRoot(UiSettings settings)
+	public IKeyboard Keyboard { get; set; }
+
+	public UiRoot(UiSettings settings, IKeyboard keyboard)
 	{
 		UiRenderContext.Init(settings.Width, settings.Height, settings.spriteFont);
 		instance = this;
+		Keyboard = keyboard;
 	}
 
 	public void AddChilds(params UiElement[] elements)

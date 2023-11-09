@@ -98,16 +98,31 @@ public class Input : UiElement
 	{
 		if (InFocus)
 		{
+			var keyboard = UiRoot.Instance.Keyboard;
 			var ch = (char)key;
-
 			if (char.IsAscii(ch))
 			{
+				ch = IsUpperCase(keyboard) ? char.ToUpper(ch) : char.ToLower(ch);
 				Text += ch;
 			}
 			else if (key == Key.Backspace)
 			{
-				Text = Text[..^1];
+				if (Text.Length > 0)
+				{
+					Text = Text[..^1];
+				}
 			}
 		}
 	}
+
+#pragma warning disable CA1416 // Validate platform compatibility
+	private bool IsUpperCase(IKeyboard keyboard) {
+		var isUpperCase = keyboard.IsKeyPressed(Key.ShiftLeft);
+		if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+		{
+			isUpperCase |= Console.CapsLock;
+		}
+		return isUpperCase;
+	}
+#pragma warning restore CA1416 // Validate platform compatibility
 }
