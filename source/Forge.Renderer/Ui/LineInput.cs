@@ -118,20 +118,23 @@ public class LineInput : UiElement
 		if (InFocus)
 		{
 			var keyboard = UiRoot.Instance.Keyboard;
-			var ch = (char)key;
-			if (char.IsAscii(ch))
-			{
-				ch = IsUpperCase(keyboard) ? char.ToUpper(ch) : char.ToLower(ch);
-				Text = Text.Insert(cursorIndex, ch.ToString());
-				cursorIndex++;
-			}
 
-			HandleCursorMoving(key, keyboard.IsKeyPressed(Key.ControlLeft));
+			if (!HandleCursorActions(key, keyboard))
+			{
+				var ch = (char)key;
+				if (char.IsAscii(ch))
+				{
+					ch = IsUpperCase(keyboard) ? char.ToUpper(ch) : char.ToLower(ch);
+					Text = Text.Insert(cursorIndex, ch.ToString());
+					cursorIndex++;
+				}
+			}
 		}
 	}
 
-	private void HandleCursorMoving(Key key, bool leftCtrl)
+	private bool HandleCursorActions(Key key, IKeyboard keyboard)
 	{
+		var leftCtrl = keyboard.IsKeyPressed(Key.ControlLeft);
 		switch (key)
 		{
 			case Key.Left:
@@ -154,6 +157,19 @@ public class LineInput : UiElement
 					cursorIndex = Text.Length;
 					break;
 				}
+			case Key.V:
+				{
+					if (leftCtrl)
+					{
+						Text = Text.Insert(cursorIndex, keyboard.ClipboardText);
+						cursorIndex += keyboard.ClipboardText.Length;
+					}
+					else
+					{
+						return false;
+					}
+					break;
+				}
 			case Key.Delete:
 				{
 					if (cursorIndex < Text.Length)
@@ -171,7 +187,11 @@ public class LineInput : UiElement
 					}
 					break;
 				}
+			default:
+				return false;
 		}
+
+		return true;
 	}
 
 	private void MoveCursorRight(bool leftCtrl)
