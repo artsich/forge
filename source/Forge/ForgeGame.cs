@@ -188,12 +188,12 @@ public unsafe class ForgeGame : ILayer
 			Padding = new(10f),
 		};
 
-		var textBox = new Input()
+		var textBox = new LineInput()
 		{
 			Color = new Vector4D<float>(0.1f, 0.1f, 0.1f, 0.5f),
 			TextColor = new Vector4D<float>(1f),
 			Padding = new(10f),
-			Size = new(100f, 0f),
+			Width = 100f,
 		};
 
 		var actionsContainer = new VerticalContainer()
