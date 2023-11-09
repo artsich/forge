@@ -6,6 +6,7 @@ using Forge.Renderer.Vertices.Layouts;
 using Forge.Renderer.VertexAssebmlers;
 using Forge.Renderer.Vertices;
 using Silk.NET.OpenGL;
+using Silk.NET.SDL;
 
 namespace Forge.Renderer;
 
@@ -49,25 +50,27 @@ public class FontRenderer : GraphicsResourceBase
 		char? lastChar = null;
 		foreach (var character in text.String)
 		{
-			if (metrics.TryGetGlyph(character, out var glyph) && glyph != null)
+			if (!metrics.TryGetGlyph(character, out var glyph))
 			{
-				if (lastChar.HasValue)
-				{
-					position.X += metrics.GetKerning(lastChar.Value, character) * scaleFactor;
-				}
-				var characterComponent = new CharacterRenderComponent
-				{
-					Position = position + glyph.LayoutOffset * scaleFactor,
-					Size = glyph.Size * scaleFactor,
-					UV = glyph.UV,
-					Color = text.Color
-				};
-
-				batchRenderer.Push(ref characterComponent);
-
-				position.X += glyph.XAdvance * scaleFactor;
-				lastChar = character;
+				metrics.TryGetGlyph('?', out glyph);
 			}
+
+			if (lastChar.HasValue)
+			{
+				position.X += metrics.GetKerning(lastChar.Value, character) * scaleFactor;
+			}
+			var characterComponent = new CharacterRenderComponent
+			{
+				Position = position + glyph.LayoutOffset * scaleFactor,
+				Size = glyph.Size * scaleFactor,
+				UV = glyph.UV,
+				Color = text.Color
+			};
+
+			batchRenderer.Push(ref characterComponent);
+
+			position.X += glyph.XAdvance * scaleFactor;
+			lastChar = character;
 		}
 	}
 
