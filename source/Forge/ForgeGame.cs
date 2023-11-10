@@ -263,8 +263,6 @@ public unsafe class ForgeGame : ILayer
 
 	public void Render(GameTime time)
 	{
-		var (totalRenderTime, delta) = (time.TotalTime, time.DeltaTime);
-
 		framebuffer.Bind();
 		framebuffer.Clear();
 
@@ -284,44 +282,43 @@ public unsafe class ForgeGame : ILayer
 		}
 		circleRenderer.Flush();
 
-		timer += delta;
-		renderUpdates++;
-		if (timer > 1)
-		{
-			fps = 1.0f / (timer / renderUpdates);
-			timer = 0;
-			renderUpdates = 0;
-		}
-
-		fpsLabel.Text = $"FPS: {fps:0.000}";
-		zoomLabel.Text = $"Zoom scale: {camera2D.CurrentZoom:0.0000}";
-		entitiesOnScreen.Text = "Entities: " + verletObjects.Count;
-		var windowCoord = MapToCurrentWindowCoord((int)Engine.PrimaryMouse.Position.X, (int)Engine.PrimaryMouse.Position.Y);
-		var (x, y) = ((int)windowCoord.X, (int)windowCoord.Y);
-		mousePositionLabel.Text = $"Mouse pos: {x} : {y}";
-
 		uiRoot.Draw();
 
 		framebuffer.Unbind();
 
 		defaultFb.Bind();
-		defaultFb.Clear();
+		defaultFb.Clear(Color.White);
 
 		PostProcessingShader.Bind();
 		quadVao.Bind();
 
-		// todo: should i make it part of framebuffer?
-		Gl.Disable(EnableCap.DepthTest);
-
 		framebuffer.Colors.ElementAt(0).Bind(0);
 
-		Gl.DrawArrays(PrimitiveType.Triangles, 0, 6);
+        Gl.Disable(EnableCap.DepthTest);
+        Gl.DrawArrays(PrimitiveType.Triangles, 0, 6);
 	}
 
 	public void Update(GameTime time)
 	{
-		// does not make sense to update camera in single thread app
-		Engine.AddRenderTask(() =>
+        var (totalRenderTime, delta) = (time.TotalTime, time.DeltaTime);
+        timer += delta;
+        renderUpdates++;
+        if (timer > 1)
+        {
+            fps = 1.0f / (timer / renderUpdates);
+            timer = 0;
+            renderUpdates = 0;
+        }
+
+        fpsLabel.Text = $"FPS: {fps:0.000}";
+        zoomLabel.Text = $"Zoom scale: {camera2D.CurrentZoom:0.0000}";
+        entitiesOnScreen.Text = "Entities: " + verletObjects.Count;
+        var windowCoord = MapToCurrentWindowCoord((int)Engine.PrimaryMouse.Position.X, (int)Engine.PrimaryMouse.Position.Y);
+        var (x, y) = ((int)windowCoord.X, (int)windowCoord.Y);
+        mousePositionLabel.Text = $"Mouse pos: {x} : {y}";
+
+        // does not make sense to update camera in single thread app
+        Engine.AddRenderTask(() =>
 		{
 			Shader.BindUniforms(camera2D.CameraData);
 		});
