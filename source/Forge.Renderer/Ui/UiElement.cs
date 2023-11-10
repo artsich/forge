@@ -30,8 +30,12 @@ public abstract class UiElement
 		OnClick?.Invoke(pos, button);
 
 		UiRoot.Instance.SetFocusedElement(this);
-		InFocus = true;
-		OnFocus?.Invoke();
+
+		if (!InFocus)
+		{
+			OnFocus?.Invoke();
+			InFocus = true;
+		}
 	}
 
 	internal virtual void OnKeyDown(Key key)

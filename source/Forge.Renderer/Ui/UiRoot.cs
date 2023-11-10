@@ -37,7 +37,7 @@ public class UiRoot
 
 	public void AddChilds(params UiElement[] elements)
 	{
-		this.elements = elements.Concat(elements).ToArray();
+		this.elements = elements.Concat(this.elements).ToArray();
 	}
 
 	public void Draw()
@@ -52,8 +52,11 @@ public class UiRoot
 
 	internal void SetFocusedElement(UiElement? element)
 	{
-		focusedElement?.OutOfFocus();
-		focusedElement = element;
+		if (element != focusedElement)
+		{
+			focusedElement?.OutOfFocus();
+			focusedElement = element;
+		}
 	}
 
 	public void OnMouseDown(Vector2D<float> pos, MouseButton button)
