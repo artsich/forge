@@ -12,7 +12,7 @@ public abstract class UiElement
 
 	public abstract Box2D<float> Aabb { get; }
 
-	public Offset Padding { get; set; }
+	public Offset Padding { get; set; } = new Offset(10f);
 
 	public Transform2d Transform { get; set; }
 

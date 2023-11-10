@@ -25,6 +25,7 @@ public class Button : UiElement
 	{
 		this.textLabel = textLabel;
 		this.quadRenderer = quadRenderer;
+		Padding = new Offset(10f);
 	}
 
 	public override Box2D<float> Aabb

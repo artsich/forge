@@ -69,6 +69,7 @@ public unsafe class ForgeGame : ILayer
 
 	private float timer;
 	private float fps;
+	private int renderUpdates;
 
 	private readonly Assets assets = new(new FontService("Assets//Font"));
 
@@ -173,7 +174,6 @@ public unsafe class ForgeGame : ILayer
 			})
 		{
 			Color = new(0.153f, 0.290f, 0.349f, 1.0f),
-			Padding = new(10f),
 		};
 
 		var addEntities = new Renderer.Ui.Button(
@@ -185,14 +185,23 @@ public unsafe class ForgeGame : ILayer
 			})
 		{
 			Color = new(0.153f, 0.290f, 0.349f, 1.0f),
-			Padding = new(10f),
+		};
+
+		var clearEntities = new Renderer.Ui.Button(
+			new TextLabel()
+			{
+				Text = "Clear",
+				FontSize = 15f,
+				Color = new(0.714f, 0.753f, 0.769f, 1.0f),
+			})
+		{
+			Color = new(0.153f, 0.290f, 0.349f, 1.0f),
 		};
 
 		var textBox = new LineInput()
 		{
 			Color = new Vector4D<float>(0.1f, 0.1f, 0.1f, 0.5f),
 			TextColor = new Vector4D<float>(1f),
-			Padding = new(10f),
 			Width = 200f,
 		};
 
@@ -203,10 +212,10 @@ public unsafe class ForgeGame : ILayer
 			{
 				animationsButton,
 				addEntities,
+				clearEntities,
 				textBox
 			},
 			Color = new Vector4D<float>(0.361f, 0.388f, 0.4f, 0.5f),
-			Padding = new(10f)
 		};
 
 		var systemInfoContainer = new HorizontalContainer()
@@ -220,7 +229,6 @@ public unsafe class ForgeGame : ILayer
 				fpsLabel,
 			},
 			Color = new Vector4D<float>(0.1f, 0.1f, 0.1f, 0.5f),
-			Padding = new(10f)
 		};
 
 		zoomLabel.OnClick += (_, _) => Console.WriteLine("Clicked on zoom.");
@@ -231,6 +239,8 @@ public unsafe class ForgeGame : ILayer
 		addEntities.OnClick += (_, _) => GenerateGameObject();
 		addEntities.OnFocus += () => Console.WriteLine("Add entities button focused.");
 		addEntities.OnUnfocus += () => Console.WriteLine("Add entities button out focused.");
+
+		clearEntities.OnClick += (_, _) => verletObjects.Clear();
 
 		actionsContainer.OnFocus += () => Console.WriteLine("Actions container focused.");
 		actionsContainer.OnUnfocus += () => Console.WriteLine("Actions container out focused.");
@@ -275,10 +285,12 @@ public unsafe class ForgeGame : ILayer
 		circleRenderer.Flush();
 
 		timer += delta;
+		renderUpdates++;
 		if (timer > 1)
 		{
+			fps = 1.0f / (timer / renderUpdates);
 			timer = 0;
-			fps = 1.0f / (float)delta;
+			renderUpdates = 0;
 		}
 
 		fpsLabel.Text = $"FPS: {fps:0.000}";
@@ -319,7 +331,7 @@ public unsafe class ForgeGame : ILayer
 
 		solver.Update(time.DeltaTime);
 
-		if (Engine.PrimaryKeyboard.IsKeyPressed(Key.Space))
+		if (Engine.PrimaryKeyboard.IsKeyPressed(Key.G))
 		{
 			GenerateGameObject();
 		}

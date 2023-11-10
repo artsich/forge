@@ -67,6 +67,7 @@ public class LineInput : UiElement
 		fontRenderer = UiRenderContext.Instance!.FontRenderer;
 		fontMetrics = fontRenderer.SpriteFont.FontMetrics;
 		FontSize = 19f;
+		Padding = new Offset(10f);
 	}
 
 	internal override void Draw()

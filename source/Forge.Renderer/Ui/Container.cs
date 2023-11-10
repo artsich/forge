@@ -21,6 +21,7 @@ public abstract class Container : UiElement
 	public Container(UiQuadRenderer uiQuadRenderer)
 	{
 		this.uiQuadRenderer = uiQuadRenderer;
+		Padding = new Offset(10f);
 	}
 
 	internal override void Draw()
