@@ -158,7 +158,7 @@ public unsafe class ForgeGame : ILayer
 
 		fpsLabel = new TextLabel()
 		{
-			Color = new (1f, 0f, 0f, 1f),
+			Color = new(1f, 0f, 0f, 1f),
 		};
 
 		zoomLabel = new TextLabel();
@@ -170,7 +170,7 @@ public unsafe class ForgeGame : ILayer
 			{
 				Text = "Animations",
 				FontSize = 15f,
-				Color = new (0.714f, 0.753f, 0.769f, 1.0f),
+				Color = new(0.714f, 0.753f, 0.769f, 1.0f),
 			})
 		{
 			Color = new(0.153f, 0.290f, 0.349f, 1.0f),
@@ -181,7 +181,7 @@ public unsafe class ForgeGame : ILayer
 			{
 				Text = "Add",
 				FontSize = 15f,
-				Color = new (0.714f, 0.753f, 0.769f, 1.0f),
+				Color = new(0.714f, 0.753f, 0.769f, 1.0f),
 			})
 		{
 			Color = new(0.153f, 0.290f, 0.349f, 1.0f),
@@ -202,34 +202,79 @@ public unsafe class ForgeGame : ILayer
 		{
 			Color = new Vector4D<float>(0.1f, 0.1f, 0.1f, 0.5f),
 			TextColor = new Vector4D<float>(1f),
-			Width = 200f,
+			Width = 150f,
 		};
 
 		var actionsContainer = new VerticalContainer()
 		{
-			Transform = new Transform2d(new Vector2D<float>(-Width / 2f + 20, Height / 2f - 20)),
 			Children = new List<UiElement>()
 			{
 				animationsButton,
-				addEntities,
-				clearEntities,
 				textBox
+			},
+			Color = new Vector4D<float>(0.361f, 0.388f, 0.4f, 0.5f),
+		};
+
+		var actionsContainer2 = new VerticalContainer()
+		{
+			Children = new List<UiElement>()
+			{
+				entitiesOnScreen,
+				new HorizontalContainer()
+				{
+					Children = new List<UiElement>()
+					{
+						clearEntities,
+						addEntities
+					},
+					Padding = new Offset(0f),
+				}
 			},
 			Color = new Vector4D<float>(0.361f, 0.388f, 0.4f, 0.5f),
 		};
 
 		var systemInfoContainer = new HorizontalContainer()
 		{
-			Transform = new Transform2d(new Vector2D<float>(-Width / 2f + 20, -Height / 2f + 50)),
 			Children = new List<UiElement>()
 			{
-				entitiesOnScreen,
 				mousePositionLabel,
 				zoomLabel,
 				fpsLabel,
 			},
 			Color = new Vector4D<float>(0.1f, 0.1f, 0.1f, 0.5f),
 		};
+
+		var grid =
+			new GridLayout(
+				new GridLayout.Row(
+					new GridLayout.Column(systemInfoContainer),
+					new Offset(0f, 10f, 0f, 10f)),
+				new GridLayout.Row(
+					new GridLayout.Column(
+						new TextLabel()
+						{
+							Text = "World settings",
+							FontSize = 15f,
+							Color = new(0.714f, 0.753f, 0.769f, 1.0f),
+						}),
+					new Offset(10f, 0f, 0f, 10f)),
+				new GridLayout.Row(
+					new[]
+					{
+						new GridLayout.Column(actionsContainer),
+						new GridLayout.Column(actionsContainer2)
+					})
+				{
+					Gap = 10f
+				})
+			{
+				Transform = new Transform2d(
+					new Vector2D<float>()
+					{
+						X = -Width/2f + 10,
+						Y = Height/2f - 10,
+					})
+			};
 
 		zoomLabel.OnClick += (_, _) => Console.WriteLine("Clicked on zoom.");
 		fpsLabel.OnClick += (_, _) => Console.WriteLine("Clicked on fps label.");
@@ -244,11 +289,11 @@ public unsafe class ForgeGame : ILayer
 
 		actionsContainer.OnFocus += () => Console.WriteLine("Actions container focused.");
 		actionsContainer.OnUnfocus += () => Console.WriteLine("Actions container out focused.");
-		
+
 		textBox.OnFocus += () => Console.WriteLine("Textbox focused.");
 		textBox.OnUnfocus += () => Console.WriteLine("Textbox out focused.");
 
-		uiRoot.AddChilds(actionsContainer, systemInfoContainer);
+		uiRoot.AddChilds(grid);
 
 		Engine.PrimaryMouse.MouseDown += (mouse, button) => uiRoot.OnMouseDown(MapToCurrentWindowCoord(mouse.Position.X, mouse.Position.Y), button);
 		Engine.PrimaryKeyboard.KeyDown += (keyboard, key, what) => uiRoot.OnKeyDown(key);
@@ -294,31 +339,31 @@ public unsafe class ForgeGame : ILayer
 
 		framebuffer.Colors.ElementAt(0).Bind(0);
 
-        Gl.Disable(EnableCap.DepthTest);
-        Gl.DrawArrays(PrimitiveType.Triangles, 0, 6);
+		Gl.Disable(EnableCap.DepthTest);
+		Gl.DrawArrays(PrimitiveType.Triangles, 0, 6);
 	}
 
 	public void Update(GameTime time)
 	{
-        var (totalRenderTime, delta) = (time.TotalTime, time.DeltaTime);
-        timer += delta;
-        renderUpdates++;
-        if (timer > 1)
-        {
-            fps = 1.0f / (timer / renderUpdates);
-            timer = 0;
-            renderUpdates = 0;
-        }
+		var (totalRenderTime, delta) = (time.TotalTime, time.DeltaTime);
+		timer += delta;
+		renderUpdates++;
+		if (timer > 1)
+		{
+			fps = 1.0f / (timer / renderUpdates);
+			timer = 0;
+			renderUpdates = 0;
+		}
 
-        fpsLabel.Text = $"FPS: {fps:0.000}";
-        zoomLabel.Text = $"Zoom scale: {camera2D.CurrentZoom:0.0000}";
-        entitiesOnScreen.Text = "Entities: " + verletObjects.Count;
-        var windowCoord = MapToCurrentWindowCoord((int)Engine.PrimaryMouse.Position.X, (int)Engine.PrimaryMouse.Position.Y);
-        var (x, y) = ((int)windowCoord.X, (int)windowCoord.Y);
-        mousePositionLabel.Text = $"Mouse pos: {x} : {y}";
+		fpsLabel.Text = $"FPS: {fps:0.000}";
+		zoomLabel.Text = $"Zoom scale: {camera2D.CurrentZoom:0.0000}";
+		entitiesOnScreen.Text = "Entities: " + verletObjects.Count;
+		var windowCoord = MapToCurrentWindowCoord((int)Engine.PrimaryMouse.Position.X, (int)Engine.PrimaryMouse.Position.Y);
+		var (x, y) = ((int)windowCoord.X, (int)windowCoord.Y);
+		mousePositionLabel.Text = $"Mouse pos: {x} : {y}";
 
-        // does not make sense to update camera in single thread app
-        Engine.AddRenderTask(() =>
+		// does not make sense to update camera in single thread app
+		Engine.AddRenderTask(() =>
 		{
 			Shader.BindUniforms(camera2D.CameraData);
 		});
