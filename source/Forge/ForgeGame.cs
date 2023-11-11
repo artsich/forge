@@ -244,6 +244,12 @@ public unsafe class ForgeGame : ILayer
 			Color = new Vector4D<float>(0.1f, 0.1f, 0.1f, 0.5f),
 		};
 
+		var coloredRect = new ColoredRect()
+		{
+			Color = new Vector4D<float>(1f, 0.1f, 0.1f, 0.2f),
+			Size = new Vector2D<float>(50f, 50f),
+		};
+
 		var grid =
 			new GridLayout(
 				new GridLayout.Row(
@@ -266,7 +272,8 @@ public unsafe class ForgeGame : ILayer
 					})
 				{
 					Gap = 10f
-				})
+				},
+				new GridLayout.Row(new GridLayout.Column(coloredRect), new Offset(0f, 10f)))
 			{
 				Transform = new Transform2d(
 					new Vector2D<float>()
@@ -292,6 +299,9 @@ public unsafe class ForgeGame : ILayer
 
 		textBox.OnFocus += () => Console.WriteLine("Textbox focused.");
 		textBox.OnUnfocus += () => Console.WriteLine("Textbox out focused.");
+
+		coloredRect.OnFocus += () => Console.WriteLine("Colored rect focused.");
+		coloredRect.OnUnfocus += () => Console.WriteLine("Colored rect unfocused.");
 
 		uiRoot.AddChilds(grid);
 
