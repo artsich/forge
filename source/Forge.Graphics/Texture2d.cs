@@ -19,6 +19,8 @@ public enum MinMagFilter
 
 public sealed class Texture2d : GraphicsResourceBase
 {
+	public static readonly Texture2d White = new (1, 1, new byte[] { 255, 255, 255, 255 }, false);
+
 	private readonly bool mipmap;
 
 	internal uint Handle { get; private set; }

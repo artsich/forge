@@ -46,9 +46,10 @@ public class QuadAssembler : IGeometryAssembler<QuadVertex, QuadRenderComponent>
 
 			vertices[i] = new QuadVertex
 			{
-				Position = new Vector3D<float>(p.X, p.Y, p.Z),
+				TextureId = quad.TextureId,
+				Color = quad.Color,
 				TexCoord = TextureCoords[i],
-				Color = quad.Color
+				Position = new Vector3D<float>(p.X, p.Y, p.Z),
 			};
 		}
 	}

@@ -11,6 +11,12 @@ public partial class Uniform
 		gl.ProgramUniform1(cs.ProgramId, Location, values);
 	}
 
+	public void SetValue(Span<int> values)
+	{
+		//ValidateType(UniformType.UnsignedIntSampler1DArray);
+		gl.ProgramUniform1(cs.ProgramId, Location, values);
+	}
+
 	public void SetValue(float value)
 	{
 		ValidateType(UniformType.Float);

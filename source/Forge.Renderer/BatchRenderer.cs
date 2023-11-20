@@ -68,7 +68,7 @@ public class BatchRenderer<TVertex, TRenderComponent> : GraphicsResourceBase
 		indicesUsed += vertexAssembler.IndicesRequired;
 	}
 
-	public unsafe void Flush()
+	public unsafe virtual void Flush()
 	{
 		var vertices = GetUsedVertices();
 

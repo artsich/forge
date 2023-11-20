@@ -82,6 +82,8 @@ public unsafe class ForgeGame : ILayer
 
 	private CircleRenderer circleRenderer;
 
+	private SpriteRenderer spriteRenderer;
+
 	public void Load()
 	{
 		window = Engine.Window;
@@ -152,6 +154,11 @@ public unsafe class ForgeGame : ILayer
 
 		solver = new VerletSolver(verletObjects, verletLinks);
 		circleRenderer = new CircleRenderer();
+
+		spriteRenderer = new SpriteRenderer(
+			new Renderer.Shaders.SpriteShader().Compile()
+			?? throw new Exception("Shader compilation failed."));
+
 		uiRoot = new UiRoot(
 			new UiSettings(Width, Height, assets.LoadFont("consola")),
 			Engine.PrimaryKeyboard);
@@ -336,6 +343,32 @@ public unsafe class ForgeGame : ILayer
 			circleRenderer.Push(ref renderInfo);
 		}
 		circleRenderer.Flush();
+
+		spriteRenderer.Begin(gameCamera);
+
+		spriteRenderer.Push(
+			new QuadRenderComponent(
+				new Vector2D<float>(50, 50),
+				new Vector2D<float>(10, 10),
+				new Vector4D<float>(1f, 1f, 1f, 1f)),
+			new Texture2d(1, 1, new byte[] { 255, 0, 0, 255 }, false));
+
+		spriteRenderer.Push(
+			new QuadRenderComponent(
+				new Vector2D<float>(-50, 50),
+				new Vector2D<float>(10, 10),
+				new Vector4D<float>(1f, 1f, 1f, 1f)),
+			new Texture2d(1, 1, new byte[] { 0, 255, 0, 255 }, false));
+
+		spriteRenderer.Push(
+			new QuadRenderComponent(
+				new Vector2D<float>(100, 50),
+				new Vector2D<float>(10, 10),
+				new Vector4D<float>(1f, 1f, 1f, 1f)),
+			new Texture2d(1, 1, new byte[] { 0, 0, 255, 255 }, false));
+
+
+		spriteRenderer.Flush();
 
 		uiRoot.Draw();
 

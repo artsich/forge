@@ -6,7 +6,7 @@ namespace Forge.Renderer.Vertices;
 
 public struct QuadVertex
 {
-	public float TextureId;
+	public uint TextureId;
 	public Vector2D<float> TexCoord;
 	public Vector3D<float> Position;
 	public Vector4D<float> Color;
